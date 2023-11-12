@@ -1,5 +1,7 @@
 # After reading the paper, this is a simple implementation of the network architectures I think they used. (Eliot C.)
+# weirdly, we can't run the 3 networks together because of memory issues, so we have to run them separately.
 
+#%% IMPORTS
 from tensorflow.keras.layers import Conv2D, Conv2DTranspose, Dense, Flatten, BatchNormalization, LeakyReLU, ReLU
 from tensorflow.keras.models import Sequential
 
@@ -105,3 +107,4 @@ discriminator = Sequential([
 
 print("Discriminator Summary:")
 discriminator.summary()
+# %%
