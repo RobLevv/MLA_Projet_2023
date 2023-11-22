@@ -1,2 +1,0 @@
-For Aligned images
-https://mmlab.ie.cuhk.edu.hk/projects/CelebA.html
