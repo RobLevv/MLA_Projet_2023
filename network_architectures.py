@@ -56,31 +56,31 @@ encoder.summary()
 # the decoder is symmetric to the encoder, but uses transposed convolutions for the up-sampling:
 # C512+2n − C512+2n − C256+2n − C128+2n − C64+2n − C32+2n − C16+2n .
 decoder = Sequential([
-    Conv2DTranspose(512, (4, 4), strides=(2, 2), padding='same', input_shape=(2, 2, 512)),
+    Conv2DTranspose(512+2*N_ATTRIBUTES, (4, 4), strides=(2, 2), padding='same', input_shape=(2, 2, 512)),
     BatchNormalization(),
     ReLU(),
     
-    Conv2DTranspose(512, (4, 4), strides=(2, 2), padding='same'),
+    Conv2DTranspose(512+2*N_ATTRIBUTES, (4, 4), strides=(2, 2), padding='same'),
     BatchNormalization(),
     ReLU(),
     
-    Conv2DTranspose(256, (4, 4), strides=(2, 2), padding='same'),
+    Conv2DTranspose(256+2*N_ATTRIBUTES, (4, 4), strides=(2, 2), padding='same'),
     BatchNormalization(),
     ReLU(),
     
-    Conv2DTranspose(128, (4, 4), strides=(2, 2), padding='same'),
+    Conv2DTranspose(128+2*N_ATTRIBUTES, (4, 4), strides=(2, 2), padding='same'),
     BatchNormalization(),
     ReLU(),
     
-    Conv2DTranspose(64, (4, 4), strides=(2, 2), padding='same'),
+    Conv2DTranspose(64+2*N_ATTRIBUTES, (4, 4), strides=(2, 2), padding='same'),
     BatchNormalization(),
     ReLU(),
     
-    Conv2DTranspose(32, (4, 4), strides=(2, 2), padding='same'),
+    Conv2DTranspose(32+2*N_ATTRIBUTES, (4, 4), strides=(2, 2), padding='same'),
     BatchNormalization(),
     ReLU(),
     
-    Conv2DTranspose(16, (4, 4), strides=(2, 2), padding='same'),
+    Conv2DTranspose(16+2*N_ATTRIBUTES, (4, 4), strides=(2, 2), padding='same'),
     BatchNormalization(),
     ReLU(),
 ])
