@@ -2,7 +2,7 @@ import numpy as np
 import pytorch
 
 # This first code is an introduction with the parameters without linked to the other code
-
+ 
 
 
  def eval_reconstruction_loss(data, param, auto_encoder): # data: Our data set   #param : Wich include the batch_size,
@@ -19,3 +19,5 @@ import pytorch
             loss.append((outputs[-1] - batch_x) ** 2)  #MLE loss
 
         return np.mean(loss)  # fuction output the mean of the loss
+    
+    
