@@ -1,0 +1,19 @@
+INFO - 11/30/23 11:13:16 - 0:00:00 - ============ Initialized logger ============
+INFO - 11/30/23 11:13:16 - 0:00:00 - attr: [('Smiling', 2)]
+                                     batch_size: 32
+                                     clip_grad_norm: 5
+                                     debug: False
+                                     dump_path: C:\Users\Root1\Documents\GitHub\FaderNetworks\models\default\t00f06lhyi
+                                     epoch_size: 50000
+                                     h_flip: True
+                                     hid_dim: 512
+                                     img_fm: 3
+                                     img_sz: 256
+                                     init_fm: 32
+                                     max_fm: 512
+                                     n_attr: 2
+                                     n_epochs: 1000
+                                     name: default
+                                     optimizer: adam
+                                     reload: 
+                                     v_flip: False
