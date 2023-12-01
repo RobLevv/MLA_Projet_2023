@@ -9,6 +9,7 @@ import torch
 N_IMAGES = 202599
 IMG_SIZE = 256
 IMG_PATH = 'images_%i_%i.pth' % (IMG_SIZE, IMG_SIZE)
+# IMG_PATH = 'tests/MLA_Projet_2023/data/img_align_celeba/images_%i_%i.pth' % (IMG_SIZE, IMG_SIZE)
 ATTR_PATH = 'attributes.pth'
 
 
@@ -23,6 +24,7 @@ def preprocess_images():
     for i in range(1, N_IMAGES + 1):
         if i % 10000 == 0:
             print(i)
+        # raw_images.append(mpimg.imread('tests/MLA_Projet_2023/data/img_align_celeba/%06i.jpg' % i)[20:-20])
         raw_images.append(mpimg.imread('img_align_celeba/%06i.jpg' % i)[20:-20])
 
     if len(raw_images) != N_IMAGES:
