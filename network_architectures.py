@@ -2,8 +2,7 @@
 # weirdly, we can't run the 3 networks together because of memory issues, so we have to run them separately.
 
 #%% IMPORTS
-from tensorflow.keras.layers import Conv2D, Conv2DTranspose, Dense, Flatten, BatchNormalization, LeakyReLU, ReLU
-from tensorflow.keras.models import Sequential
+from torch.nn import Sequential, Conv2d, ConvTranspose2d, BatchNorm2d, ReLU, LeakyReLU, Flatten, Linear
 
 IMG_SIZE = (256, 256, 3)
 N_ATTRIBUTES = 40
@@ -19,32 +18,32 @@ N_ATTRIBUTES = 40
 # The encoder consists of the following 7 layers:
 # C16 − C32 − C64 − C128 − C256 − C512 − C512
 encoder = Sequential([
-    Conv2D(16, (4, 4), strides=(2, 2), padding='same', input_shape=IMG_SIZE),
-    BatchNormalization(),
+    Conv2d(16, (4, 4), strides=(2, 2), padding='same', input_shape=IMG_SIZE),
+    BatchNorm2d(),
     LeakyReLU(0.2),
     
-    Conv2D(32, (4, 4), strides=(2, 2), padding='same'),
-    BatchNormalization(),
+    Conv2d(32, (4, 4), strides=(2, 2), padding='same'),
+    BatchNorm2d(),
     LeakyReLU(0.2),
     
-    Conv2D(64, (4, 4), strides=(2, 2), padding='same'),
-    BatchNormalization(),
+    Conv2d(64, (4, 4), strides=(2, 2), padding='same'),
+    BatchNorm2d(),
     LeakyReLU(0.2),
     
-    Conv2D(128, (4, 4), strides=(2, 2), padding='same'),
-    BatchNormalization(),
+    Conv2d(128, (4, 4), strides=(2, 2), padding='same'),
+    BatchNorm2d(),
     LeakyReLU(0.2),
     
-    Conv2D(256, (4, 4), strides=(2, 2), padding='same'),
-    BatchNormalization(),
+    Conv2d(256, (4, 4), strides=(2, 2), padding='same'),
+    BatchNorm2d(),
     LeakyReLU(0.2),
     
-    Conv2D(512, (4, 4), strides=(2, 2), padding='same'),
-    BatchNormalization(),
+    Conv2d(512, (4, 4), strides=(2, 2), padding='same'),
+    BatchNorm2d(),
     LeakyReLU(0.2),
     
-    Conv2D(512, (4, 4), strides=(2, 2), padding='same'),
-    BatchNormalization(),
+    Conv2d(512, (4, 4), strides=(2, 2), padding='same'),
+    BatchNorm2d(),
     LeakyReLU(0.2),
 ])
 
@@ -56,32 +55,32 @@ encoder.summary()
 # the decoder is symmetric to the encoder, but uses transposed convolutions for the up-sampling:
 # C512+2n − C512+2n − C256+2n − C128+2n − C64+2n − C32+2n − C16+2n .
 decoder = Sequential([
-    Conv2DTranspose(512+2*N_ATTRIBUTES, (4, 4), strides=(2, 2), padding='same', input_shape=(2, 2, 512)),
-    BatchNormalization(),
+    ConvTranspose2d(512+2*N_ATTRIBUTES, (4, 4), strides=(2, 2), padding='same', input_shape=(2, 2, 512)),
+    BatchNorm2d(),
     ReLU(),
     
-    Conv2DTranspose(512+2*N_ATTRIBUTES, (4, 4), strides=(2, 2), padding='same'),
-    BatchNormalization(),
+    ConvTranspose2d(512+2*N_ATTRIBUTES, (4, 4), strides=(2, 2), padding='same'),
+    BatchNorm2d(),
     ReLU(),
     
-    Conv2DTranspose(256+2*N_ATTRIBUTES, (4, 4), strides=(2, 2), padding='same'),
-    BatchNormalization(),
+    ConvTranspose2d(256+2*N_ATTRIBUTES, (4, 4), strides=(2, 2), padding='same'),
+    BatchNorm2d(),
     ReLU(),
     
-    Conv2DTranspose(128+2*N_ATTRIBUTES, (4, 4), strides=(2, 2), padding='same'),
-    BatchNormalization(),
+    ConvTranspose2d(128+2*N_ATTRIBUTES, (4, 4), strides=(2, 2), padding='same'),
+    BatchNorm2d(),
     ReLU(),
     
-    Conv2DTranspose(64+2*N_ATTRIBUTES, (4, 4), strides=(2, 2), padding='same'),
-    BatchNormalization(),
+    ConvTranspose2d(64+2*N_ATTRIBUTES, (4, 4), strides=(2, 2), padding='same'),
+    BatchNorm2d(),
     ReLU(),
     
-    Conv2DTranspose(32+2*N_ATTRIBUTES, (4, 4), strides=(2, 2), padding='same'),
-    BatchNormalization(),
+    ConvTranspose2d(32+2*N_ATTRIBUTES, (4, 4), strides=(2, 2), padding='same'),
+    BatchNorm2d(),
     ReLU(),
     
-    Conv2DTranspose(16+2*N_ATTRIBUTES, (4, 4), strides=(2, 2), padding='same'),
-    BatchNormalization(),
+    ConvTranspose2d(16+2*N_ATTRIBUTES, (4, 4), strides=(2, 2), padding='same'),
+    BatchNorm2d(),
     ReLU(),
 ])
 
@@ -93,16 +92,16 @@ decoder.summary()
 #%% Discriminator
 # The discriminator is a C512 layer followed by a fully-connected neural network of two layers of size 512 and n repsectively.
 discriminator = Sequential([
-    Conv2D(512, (4, 4), strides=(2, 2), padding='same', input_shape=IMG_SIZE),
-    BatchNormalization(),
+    Conv2d(512, (4, 4), strides=(2, 2), padding='same', input_shape=IMG_SIZE),
+    BatchNorm2d(),
     LeakyReLU(0.2),
     
     Flatten(),
-    Dense(512),
-    BatchNormalization(),
+    Linear(512),
+    BatchNorm2d(),
     LeakyReLU(0.2),
     
-    Dense(N_ATTRIBUTES),  # n is the number of attributes
+    Linear(N_ATTRIBUTES),  # n is the number of attributes
 ])
 
 print("Discriminator Summary:")
