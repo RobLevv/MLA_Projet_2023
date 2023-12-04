@@ -4,7 +4,7 @@
 #%% IMPORTS
 from torch.nn import Sequential, Conv2d, ConvTranspose2d, BatchNorm2d, ReLU, LeakyReLU, Flatten, Linear
 
-IMG_SIZE = (256, 256, 3)
+IMG_SIZE = (3, 256, 256)
 N_ATTRIBUTES = 40
 
 #%% GENERAL NOTES
@@ -19,7 +19,7 @@ N_ATTRIBUTES = 40
 # C16 − C32 − C64 − C128 − C256 − C512 − C512
 encoder_layers = Sequential(
     # C16: Convolutional layer with 16 filters
-    Conv2d(in_channels=IMG_SIZE[2], out_channels=16, kernel_size=4, stride=2, padding=1),
+    Conv2d(in_channels=IMG_SIZE[0], out_channels=16, kernel_size=4, stride=2, padding=1),
     BatchNorm2d(16),
     LeakyReLU(0.2, inplace=True),
 
@@ -54,9 +54,10 @@ encoder_layers = Sequential(
     LeakyReLU(0.2, inplace=True)
 )
 
+if __name__ == "__main__":
 
-print("Encoder Summary:")
-print(encoder_layers)
+    print("Encoder Summary:")
+    print(encoder_layers)
 
 
 #%% Decoder
@@ -99,15 +100,16 @@ decoder_layers = Sequential(
     ReLU(inplace=True)
 )
 
+if __name__ == "__main__":
 
-print("Decoder Summary:")
-print(decoder_layers)
+    print("Decoder Summary:")
+    print(decoder_layers)
 
 #%% Discriminator
 # The discriminator is a C512 layer followed by a fully-connected neural network of two layers of size 512 and n repsectively.
 discriminator_layers = Sequential(
     # C512: Convolutional layer with 512 filters
-    Conv2d(in_channels=IMG_SIZE[2], out_channels=512, kernel_size=4, stride=2, padding=1),
+    Conv2d(in_channels=512, out_channels=512, kernel_size=4, padding="same"),
     BatchNorm2d(512),
     LeakyReLU(0.2, inplace=True),
     
@@ -122,7 +124,8 @@ discriminator_layers = Sequential(
     Linear(512, N_ATTRIBUTES)
 )
 
-
-print("Discriminator Summary:")
-print(discriminator_layers)
+if __name__ == "__main__":
+    
+    print("Discriminator Summary:")
+    print(discriminator_layers)
 # %%

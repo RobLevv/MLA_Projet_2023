@@ -1,66 +1,90 @@
-
-import tensorflow as tf
-from tensorflow.keras import layers
-from tensorflow.keras.models import Model
+import torch
+import torch.nn as nn
+import pandas as pd
 from data_loader_V2 import load_dataset
 
 
-from network_architectures import encoder, decoder, discriminator
+from network_architectures import encoder_layers, decoder_layers, discriminator_layers
 
-class autoencoder(Model):
-    def __init__(self, encoder, decoder,latent_dim):
-        super(autoencoder, self).__init__()
-        self.latent_dim = latent_dim
+class AutoEncoder(nn.Module):
+    def __init__(self, encoder, decoder):
+        super(AutoEncoder, self).__init__()
         self.encoder = encoder
         self.decoder = decoder
-
-    def call(self, x):
-        latent = self.encoder(x)
+        
+    def forward(self, x):
+        input = x.float()
+        latent = self.encoder(input)
         decoded = self.decoder(latent)
-        return decoded
+        return latent, decoded
     
-    def encode(self, x):
-        latent = self.encoder(x)
-        return latent
+    def loss(self, x, x_decoded, modified_loss=False):
+        if not modified_loss:
+            return nn.MSELoss(x, x_decoded)
+        else:
+            return ...
     
-    def decode(self, latent):
-        decoded = self.decoder(latent)
-        return decoded
-    
-class discriminator(Model):
+class Discriminator(nn.Module):
     def __init__(self, discriminator):
-        super(discriminator, self).__init__()
+        super(Discriminator, self).__init__()
         self.discriminator = discriminator
         
-    def call(self, x):
-        return self.discriminator(x)
+    def forward(self, x):
+        input = x.float()
+        return self.discriminator(input)
+    
+    def loss(self, y, y_discriminated, modified_loss=False):
+        if not modified_loss:
+            return nn.MSELoss(y, y_discriminated)
+        else:
+            return ...
     
 ##% This is the actual training loop
 # All above we need to define those elsewhere
-ae = autoencoder(encoder, decoder, 512)
-dis = discriminator(discriminator)
+ae = AutoEncoder(encoder_layers, decoder_layers)
+dis = Discriminator(discriminator_layers)
 
-ae.compile(optimizer='adam', loss='mse')
-dis.compile(optimizer='adam', loss='mse')
-
-images, attributes = load_dataset(nb_examples=202599, images_folder='data/Img', attributes_file='data/Anno/list_attr_celeba.txt', target_size=256, shuffle=True, display=True)
+images, attributes = load_dataset(nb_examples=100, images_folder='data/Img_lite', attributes_file='data/Anno/list_attr_celeba.txt', target_size=256, shuffle=False, display=False)
    
-def train(n_epochs:int, n_batch:int, autoencoder:Model, discriminator:Model, latent_discriminator:Model, patch_discriminator:Model, dataset):
+def train(n_epochs:int, n_batch:int, autoencoder:AutoEncoder, discriminator:Discriminator, image_data:pd.DataFrame, attributes_data:pd.DataFrame):
     """
     Train the autoencoder, discriminator, latent discriminator and patch discriminator.
     """
+    len_dataset = len(image_data)
     for epoch in range(n_epochs):
-        autoencoder.fit(dataset, epochs=1, batch_size=n_batch)
-        discriminator.fit(dataset, epochs=1, batch_size=n_batch)
-        latent_discriminator.fit(dataset, epochs=1, batch_size=n_batch)
-        patch_discriminator.fit(dataset, epochs=1, batch_size=n_batch)
-        # Evaluate the models
-        autoencoder.evaluate(dataset)
-        discriminator.evaluate(dataset)
-        latent_discriminator.evaluate(dataset)
-        patch_discriminator.evaluate(dataset)
+        loss_train = 0
+        for index in image_data.index:
+            image = image_data.loc[index]
+            attributes = attributes_data.loc[index]
+            
+            # convert to tensor : (H, W, C) -> (C, H, W)
+            image = torch.tensor(image)
+            attributes = torch.tensor(attributes)
+            
+            print("\n\n\n", image.shape, attributes.shape, "\n\n\n")
+            
+            # generate output
+            latent, decoded = autoencoder(image)
+            pred_y = discriminator(latent)
+            # compute losses
+            loss_autoencoder = autoencoder.loss(image, decoded) # NOT IMPLEMENTED YET
+            loss_discriminator = discriminator.loss(attributes, pred_y) # NOT IMPLEMENTED YET
+            loss_adversarial = ... # NOT IMPLEMENTED YET ( loss_autoencoder - loss_discriminator )
+            # optimizer zero grad
+            autoencoder.optimizer.zero_grad()        
+            discriminator.optimizer.zero_grad()
+            # backpropagate
+            loss_autoencoder.backward()
+            loss_discriminator.backward()
+            # optimizer step
+            autoencoder.optimizer.step()
+            discriminator.optimizer.step()
+            # update loss
+            loss_train += loss_autoencoder.item()
+        loss_train /= len_dataset
+        print(f'Epoch {epoch}, loss {loss_train:.2f}')
         
-train(100, 32, ae, dis, lat_dis, ptc_dis, dataset)
+train(n_epochs=10, n_batch=32, autoencoder=ae, discriminator=dis, image_data=images, attributes_data=attributes)
 
 ############################################################################################################
 # This is a good architecture but not precise enough we need:

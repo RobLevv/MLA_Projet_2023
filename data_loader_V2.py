@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+import torch
+import torchvision
 import os
 
 
@@ -11,7 +13,7 @@ def crop_for_celeba(img) -> tf.Tensor:
     """
     IMG_SIZE = (178, 218, 3)
     # Crop the image to make it square
-    img = tf.image.crop_to_bounding_box(img, offset_height=20, offset_width=0, target_height=178, target_width=178)
+    img = torchvision.transforms.functional.crop(img, 40, 0, 178, 178)
     return img
 
 
@@ -29,11 +31,11 @@ def load_images(
         print('Loading {} images from {}'.format(len(image_paths), '/'.join(image_paths[0].split('/')[:-1])))
     images = []
     for path in image_paths:
-        img = tf.io.read_file(path)
-        img = tf.image.decode_png(img, channels=3)
+        img = torchvision.io.read_image(path)
+        img = torch.tensor(img)
         if celeba:
             img = crop_for_celeba(img)
-        img = tf.image.resize(img, [target_size, target_size])
+        img = torchvision.transforms.functional.resize(img, (target_size, target_size))
         images.append(img)
 
     images = np.array(images, dtype=np.uint8)
