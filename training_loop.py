@@ -48,7 +48,25 @@ class AutoEncoder(nn.Module):
             assert x.shape == x_decoded.shape, "x and x_decoded must have the same shape"    
             return mse_loss(x.float(), x_decoded).float()
         else:
-            return ...
+            return torch.mean((x_decoded - x.float())**2)
+    def autoencodeur_step(self,loss,n_epochs,dataloader,autoencoder):
+        for batch_idx, batch in enumerate(data_loader):
+            images, attributes = batch['image'], batch['attributes']
+                        
+            # print("\n\n\n", images.shape, attributes.shape)
+            # print(images.dtype, attributes.dtype, "\n\n\n")
+            
+             
+            # generate output
+            latent, decoded = autoencoder(images, attributes)
+            
+            # compute losses
+            loss_autoencoder = autoencoder.loss(images, decoded) # NOT IMPLEMENTED YET
+            autoencoder.optimizer.zero_grad() 
+            loss_autoencoder.backward()
+            autoencoder.optimizer.step()
+
+
         
     
     
@@ -68,7 +86,7 @@ class Discriminator(nn.Module):
             assert y.shape == y_discriminated.shape, "y and y_discriminated must have the same shape"
             return mse_loss(y.float(), y_discriminated).float()
         else:
-            return ...
+            return -torch.mean(torch.log(y_discriminated))
     
 ##% This is the actual training loop
 # All above we need to define those elsewhere
