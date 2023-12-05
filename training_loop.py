@@ -31,13 +31,13 @@ class AutoEncoder(nn.Module):
         # print("y", y.shape, y.dtype)
         # print("latent", latent.shape, latent.dtype)
         input_y = input_y.unsqueeze(2).unsqueeze(3)
-        print("input_y", input_y.shape, input_y.dtype)
+        # print("input_y", input_y.shape, input_y.dtype)
         input_y = input_y.expand(y.shape[0], y.shape[1], 2, 2)
-        print("input_y", input_y.shape, input_y.dtype)
+        # print("input_y", input_y.shape, input_y.dtype)
         
         # concatenate latent and yhot
         latent_y = torch.cat((latent, input_y), dim=1)
-        print("latent_y", latent_y.shape, latent_y.dtype)
+        # print("latent_y", latent_y.shape, latent_y.dtype)
         
         
         decoded = self.decoder(latent_y)
@@ -93,29 +93,46 @@ def train(n_epochs:int, n_batch:int, autoencoder:AutoEncoder, discriminator:Disc
              
             # generate output
             latent, decoded = autoencoder(images, attributes)
-            pred_y = discriminator(latent)
+            
             # compute losses
             loss_autoencoder = autoencoder.loss(images, decoded) # NOT IMPLEMENTED YET
-            loss_discriminator = discriminator.loss(attributes, pred_y) # NOT IMPLEMENTED YET
+            autoencoder.optimizer.zero_grad() 
+            loss_autoencoder.backward()
+            autoencoder.optimizer.step()   
+            
+            # pred_y = discriminator(latent)            
+            # loss_discriminator = discriminator.loss(attributes, pred_y) # NOT IMPLEMENTED YET
+            # discriminator.optimizer.zero_grad()
+            # loss_discriminator.backward()
+            # discriminator.optimizer.step()
             loss_adversarial = ... # NOT IMPLEMENTED YET ( loss_autoencoder - loss_discriminator )
             # print("loss_autoencoder", loss_autoencoder.shape, loss_autoencoder.dtype, loss_autoencoder)
             # print("loss_discriminator", loss_discriminator.shape, loss_discriminator.dtype, loss_discriminator)
             
-            # optimizer step
-            nn.utils.clip_grad_norm(AutoEncoder.parameters(), 0.5)
-            autoencoder.optimizer.zero_grad() 
-            loss_autoencoder.backward(retain_graph=True)
-            autoencoder.optimizer.step()     
-            discriminator.optimizer.zero_grad()
-            loss_discriminator.backward(retain_graph=True)
-            discriminator.optimizer.step()
 
             # update loss
             loss_train += loss_autoencoder.item()
         loss_train /= len(data_loader)
         print(f'Epoch {epoch}, loss {loss_train:.2f}')
         
-train(n_epochs=10, n_batch=10, autoencoder=ae, discriminator=dis, dataset=dataset)
+
+
+if __name__ == "__main__":
+    train(n_epochs=10, n_batch=10, autoencoder=ae, discriminator=dis, dataset=dataset)
+    batch = data_loader.__iter__().__next__()
+    images, attributes = batch['image'], batch['attributes']
+    latent, decoded = ae(images, attributes)
+    
+    import matplotlib.pyplot as plt
+    
+    fig, ax = plt.subplots(2, 10, figsize=(20, 4))
+    for i in range(10):
+        ax[0, i].imshow(images[i].permute(1, 2, 0))
+        ax[0, i].axis('off')
+        ax[1, i].imshow(decoded[i].permute(1, 2, 0).detach().numpy())
+        ax[1, i].axis('off')
+    plt.tight_layout()
+    plt.show()
 
 ############################################################################################################
 # This is a good architecture but not precise enough we need:
