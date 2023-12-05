@@ -65,39 +65,39 @@ if __name__ == "__main__":
 # C512+2n − C512+2n − C256+2n − C128+2n − C64+2n − C32+2n − C16+2n .
 decoder_layers = Sequential(
     # C512+2n: Transposed convolutional layer with 512 + 2 * N_ATTRIBUTES filters
-    ConvTranspose2d(in_channels=512 + 2 * N_ATTRIBUTES, out_channels=512, kernel_size=4, stride=2, padding=1),
-    BatchNorm2d(512),
+    ConvTranspose2d(in_channels=512 + N_ATTRIBUTES, out_channels=512 + N_ATTRIBUTES, kernel_size=4, stride=2, padding=1),
+    BatchNorm2d(512 + N_ATTRIBUTES),
     ReLU(inplace=True),
 
     # C512+2n: Transposed convolutional layer with 512 + 2 * N_ATTRIBUTES filters
-    ConvTranspose2d(in_channels=512 + 2 * N_ATTRIBUTES, out_channels=512, kernel_size=4, stride=2, padding=1),
-    BatchNorm2d(512),
+    ConvTranspose2d(in_channels=512 +  N_ATTRIBUTES, out_channels=512 + N_ATTRIBUTES, kernel_size=4, stride=2, padding=1),
+    BatchNorm2d(512 + N_ATTRIBUTES),
     ReLU(inplace=True),
 
     # C256+2n: Transposed convolutional layer with 256 + 2 * N_ATTRIBUTES filters
-    ConvTranspose2d(in_channels=512 + 2 * N_ATTRIBUTES, out_channels=256, kernel_size=4, stride=2, padding=1),
-    BatchNorm2d(256),
+    ConvTranspose2d(in_channels=512 +  N_ATTRIBUTES, out_channels=256 + N_ATTRIBUTES, kernel_size=4, stride=2, padding=1),
+    BatchNorm2d(256 + N_ATTRIBUTES),
     ReLU(inplace=True),
 
     # C128+2n: Transposed convolutional layer with 128 + 2 * N_ATTRIBUTES filters
-    ConvTranspose2d(in_channels=256 + 2 * N_ATTRIBUTES, out_channels=128, kernel_size=4, stride=2, padding=1),
-    BatchNorm2d(128),
+    ConvTranspose2d(in_channels=256 +  N_ATTRIBUTES, out_channels=128 + N_ATTRIBUTES, kernel_size=4, stride=2, padding=1),
+    BatchNorm2d(128 + N_ATTRIBUTES),
     ReLU(inplace=True),
 
     # C64+2n: Transposed convolutional layer with 64 + 2 * N_ATTRIBUTES filters
-    ConvTranspose2d(in_channels=128 + 2 * N_ATTRIBUTES, out_channels=64, kernel_size=4, stride=2, padding=1),
-    BatchNorm2d(64),
+    ConvTranspose2d(in_channels=128 +  N_ATTRIBUTES, out_channels=64 + N_ATTRIBUTES, kernel_size=4, stride=2, padding=1),
+    BatchNorm2d(64 + N_ATTRIBUTES),
     ReLU(inplace=True),
 
     # C32+2n: Transposed convolutional layer with 32 + 2 * N_ATTRIBUTES filters
-    ConvTranspose2d(in_channels=64 + 2 * N_ATTRIBUTES, out_channels=32, kernel_size=4, stride=2, padding=1),
-    BatchNorm2d(32),
+    ConvTranspose2d(in_channels=64 +  N_ATTRIBUTES, out_channels=32 + N_ATTRIBUTES, kernel_size=4, stride=2, padding=1),
+    BatchNorm2d(32 + N_ATTRIBUTES),
     ReLU(inplace=True),
 
     # C16+2n: Transposed convolutional layer with 16 + 2 * N_ATTRIBUTES filters
-    ConvTranspose2d(in_channels=32 + 2 * N_ATTRIBUTES, out_channels=16, kernel_size=4, stride=2, padding=1),
-    BatchNorm2d(16),
-    ReLU(inplace=True)
+    ConvTranspose2d(in_channels=32 +  N_ATTRIBUTES, out_channels=3, kernel_size=4, stride=2, padding=1),
+    BatchNorm2d(3),
+    ReLU(inplace=True),
 )
 
 if __name__ == "__main__":
@@ -117,7 +117,7 @@ discriminator_layers = Sequential(
     Flatten(),
 
     # Fully-connected layer with size 512
-    Linear(512, 512),
+    Linear(512*2*2, 512),
     LeakyReLU(0.2, inplace=True),
 
     # Fully-connected layer with size n (assuming n is the number of attributes)
