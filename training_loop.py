@@ -111,22 +111,36 @@ def train(n_epochs:int, device, autoencoder:AutoEncoder, discriminator:Discrimin
             # generate output
             latent, decoded = autoencoder(images, attributes)
             
-            # compute losses
-            loss_autoencoder = autoencoder.loss(images, decoded) # NOT IMPLEMENTED YET
+            # Autoencoder backward pass
+            loss_autoencoder = autoencoder.loss(images, decoded)
             autoencoder.optimizer.zero_grad() 
             loss_autoencoder.backward()
             autoencoder.optimizer.step()   
-            
-            # pred_y = discriminator(latent)            
-            # loss_discriminator = discriminator.loss(attributes, pred_y) # NOT IMPLEMENTED YET
-            # discriminator.optimizer.zero_grad()
-            # loss_discriminator.backward()
-            # discriminator.optimizer.step()
-            loss_adversarial = ... # NOT IMPLEMENTED YET ( loss_autoencoder - loss_discriminator )
-            # print("loss_autoencoder", loss_autoencoder.shape, loss_autoencoder.dtype, loss_autoencoder)
-            # print("loss_discriminator", loss_discriminator.shape, loss_discriminator.dtype, loss_discriminator)
 
-            if batch_idx%1000 == 0:
+            # Detach the gradient computation from autoencoder to avoid backpropagating through it
+            latent.detach_()
+
+            # Discriminator backward pass
+            pred_y = discriminator(latent)            
+            loss_discriminator = discriminator.loss(attributes, pred_y)
+            discriminator.optimizer.zero_grad()
+            loss_discriminator.backward()
+            discriminator.optimizer.step()
+
+            
+            loss_adversarial = ... # NOT IMPLEMENTED YET ( loss_autoencoder - loss_discriminator )
+            
+            """PRINT THE LOSSES"""
+            # print("  epoch", epoch, 
+            #       "  batch_idx", batch_idx, 
+            #       "  loss_autoencoder", round(loss_autoencoder.item(), 2), 
+            #       "  loss_discriminator", round(loss_discriminator.item(), 4))
+
+            """PRINT THE NUMBER OF ATTRIBUTES PREDICTED CORRECTLY BY THE DISCRIMINATOR"""
+            # pred_attributes = torch.where(pred_y > 0, torch.ones_like(pred_y), -torch.ones_like(pred_y))
+            # print("nb of attributes predicted correctly", torch.sum(pred_attributes == attributes).item(), "over", pred_attributes.shape[0]*pred_attributes.shape[1])
+
+            if batch_idx%1000 == 0: # print every 1000 mini-batches, TODO implement a logger
                 print("Computed {}/{} images ({}%)\r".format(batch_idx*10, 202599, batch_idx*10/202599))
                 print(f'Epoch {epoch}, loss {loss_train/(batch_idx+1):.2f}')
                 images_cpu, decoded_cpu = images.cpu(), decoded.cpu()
