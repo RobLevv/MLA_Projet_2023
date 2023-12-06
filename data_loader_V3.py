@@ -70,11 +70,16 @@ def train_validation_test_split(
         shuffle:bool=False,
         display:bool=False
         ) -> tuple([Dataset,Dataset,Dataset]):
-    
+    """
+    Split a dataset into a train, validation and test dataset.
+    """
+    # first assert that the splits ratios are correct
     assert int(100*(train_split + test_split + val_split)) == 100, "train_split + test_split + val_split must be equals to 1, not {}".format(train_split + test_split + val_split)
 
+    # build the indices
     idx = list(range(len(dataset)))
 
+    # compute the number of examples in each dataset
     nb_val = int(np.round(len(dataset)*val_split))
     nb_test = int(np.round(len(dataset)*test_split))
     nb_train = len(dataset) - (nb_val + nb_test)
@@ -83,22 +88,13 @@ def train_validation_test_split(
         print("nb_train:", nb_train)
         print("nb_val  :", nb_val)
         print("nb_test :", nb_test)
-        
-        print("sum     :", nb_train + nb_val + nb_test)
 
     if shuffle:
         np.random.shuffle(idx)
-        idx_train = idx_train = idx[:nb_train]
-        idx_val = idx[nb_train:nb_train+nb_val]
-        idx_test = idx[nb_train+nb_val:]
-    else:
-        idx_train = idx[:nb_train]
-        idx_val = idx[nb_train:nb_val]
-        idx_test = idx[nb_train+nb_val:]
         
-    train_dataset = Subset(dataset, idx_train)
-    val_dataset= Subset(dataset,idx_val)
-    test_dataset= Subset(dataset,idx_test)
+    train_dataset = Subset(dataset, idx[:nb_train])
+    val_dataset= Subset(dataset, idx[nb_train:nb_train + nb_val])
+    test_dataset= Subset(dataset, idx[nb_train + nb_val:])
     
     return train_dataset,val_dataset,test_dataset
 
@@ -159,10 +155,7 @@ if __name__ == "__main__":
             print("Images shape:", images.shape)
             print("Attributes shape:", attributes.shape)
             break
-        
-        
-        print("\n\nSPLIT TEST\n")
-    
+            
     
     def main3():
         """Test the train_validation_test_split function."""
@@ -172,19 +165,19 @@ if __name__ == "__main__":
         
         # let's explore the datasets
         print("TRAIN DATASET")
-        print("len:", len(train_dataset))
-        print("sample 0 attributes:", train_dataset[0]['attributes'])
-        print('image name:', train_dataset[0]['image_name'])
+        print("  len:", len(train_dataset))
+        print("  sample 0 attributes:", train_dataset[0]['attributes'])
+        print('  image name:', train_dataset[0]['image_name'])
         
         print("VAL DATASET")
-        print("len:", len(val_dataset))
-        print("sample 0 attributes:", val_dataset[0]['attributes'])
-        print('image name:', val_dataset[0]['image_name'])
+        print("  len:", len(val_dataset))
+        print("  sample 0 attributes:", val_dataset[0]['attributes'])
+        print('  image name:', val_dataset[0]['image_name'])
         
         print("TEST DATASET")
-        print("len:", len(test_dataset))
-        print("sample 0 attributes:", test_dataset[0]['attributes'])
-        print('image name:', test_dataset[0]['image_name'])
+        print("  len:", len(test_dataset))
+        print("  sample 0 attributes:", test_dataset[0]['attributes'])
+        print('  image name:', test_dataset[0]['image_name'])
         
         plt.figure(figsize=(5, 5))
         plt.pie(
