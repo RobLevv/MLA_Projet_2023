@@ -14,7 +14,7 @@ class AutoEncoder(nn.Module):
         super(AutoEncoder, self).__init__()
         self.encoder = encoder
         self.decoder = decoder
-        self.optimizer = torch.optim.Adam(self.parameters(), lr=0.001)
+        self.optimizer = torch.optim.Adam(self.parameters(), lr = 0.001)
         
     def forward(self, x, y):
         input_x = x.float()
@@ -25,8 +25,8 @@ class AutoEncoder(nn.Module):
         # recreate y to be of shape (batch_size, N_ATTRIBUTES, 2)
         # yhot = y.clone().detach().numpy()
         # yhot[yhot == -1] = 0
-        # yhot = np.stack((yhot, 1-yhot), axis=2)
-        # yhot = torch.tensor(yhot, dtype=torch.float32)
+        # yhot = np.stack((yhot, 1-yhot), axis = 2)
+        # yhot = torch.tensor(yhot, dtype = torch.float32)
         # print("yhot", yhot.shape, yhot.dtype)
         # print("y", y.shape, y.dtype)
         # print("latent", latent.shape, latent.dtype)
@@ -36,20 +36,21 @@ class AutoEncoder(nn.Module):
         # print("input_y", input_y.shape, input_y.dtype)
         
         # concatenate latent and yhot
-        latent_y = torch.cat((latent, input_y), dim=1)
+        latent_y = torch.cat((latent, input_y), dim = 1)
         # print("latent_y", latent_y.shape, latent_y.dtype)
         
         
         decoded = self.decoder(latent_y)
         return latent, decoded
     
-    def loss(self, x, x_decoded, modified_loss=False):
+    def loss(self, x, x_decoded, modified_loss = False):
         if not modified_loss:
             assert x.shape == x_decoded.shape, "x and x_decoded must have the same shape"    
             return mse_loss(x.float(), x_decoded).float()
         else:
             return torch.mean((x_decoded - x.float())**2)
-    def autoencodeur_step(self,loss,n_epochs,dataloader,autoencoder):
+    
+    def autoencodeur_step(self, loss, n_epochs, dataloader, autoencoder):
         for batch_idx, batch in enumerate(data_loader):
             images, attributes = batch['image'], batch['attributes']
                         
@@ -74,14 +75,14 @@ class Discriminator(nn.Module):
     def __init__(self, discriminator):
         super(Discriminator, self).__init__()
         self.discriminator = discriminator
-        self.optimizer = torch.optim.Adam(self.parameters(), lr=0.001)
+        self.optimizer = torch.optim.Adam(self.parameters(), lr = 0.001)
         
     def forward(self, x):
         input = x.float()
         # print("input", input.shape, input.dtype)
         return self.discriminator(input)
     
-    def loss(self, y, y_discriminated, modified_loss=False):
+    def loss(self, y, y_discriminated, modified_loss = False):
         if not modified_loss:
             assert y.shape == y_discriminated.shape, "y and y_discriminated must have the same shape"
             return mse_loss(y.float(), y_discriminated).float()
@@ -129,7 +130,7 @@ def train(n_epochs:int, device, autoencoder:AutoEncoder, discriminator:Discrimin
                 print("Computed {}/{} images ({}%)\r".format(batch_idx*10, 202599, batch_idx*10/202599))
                 print(f'Epoch {epoch}, loss {loss_train/(batch_idx+1):.2f}')
                 images_cpu, decoded_cpu = images.cpu(), decoded.cpu()
-                fig, ax = plt.subplots(2, 10, figsize=(20, 4))
+                fig, ax = plt.subplots(2, 10, figsize = (20, 4))
                 for i in range(10):
                     ax[0, i].imshow(images_cpu[i].permute(1, 2, 0))
                     ax[0, i].axis('off')
@@ -151,9 +152,9 @@ if __name__ == "__main__":
     ae = AutoEncoder(encoder_layers, decoder_layers)
     dis = Discriminator(discriminator_layers)
     
-    dataset = ImgDataset(attributes_csv_file='data/Anno/list_attr_celeba.txt', img_root_dir='data/Img')
-    data_loader = DataLoader(dataset, batch_size=32, shuffle=True)
-    train(n_epochs=10, device=device, autoencoder=ae, discriminator=dis, dataset=dataset)
+    dataset = ImgDataset(attributes_csv_file = 'data/Anno/list_attr_celeba.txt', img_root_dir = 'data/Img')
+    data_loader = DataLoader(dataset, batch_size = 32, shuffle = True)
+    train(n_epochs = 10, device = device, autoencoder = ae, discriminator = dis, dataset = dataset)
     batch = data_loader.__iter__().__next__()
     images, attributes = batch['image'], batch['attributes']
     images, attributes = images.to(device), attributes.to(device)
@@ -161,7 +162,7 @@ if __name__ == "__main__":
     images, decoded = images.cpu(), decoded.cpu()
     
     
-    fig, ax = plt.subplots(2, 10, figsize=(20, 4))
+    fig, ax = plt.subplots(2, 10, figsize = (20, 4))
     for i in range(10):
         ax[0, i].imshow(images[i].permute(1, 2, 0))
         ax[0, i].axis('off')
@@ -188,8 +189,8 @@ if __name__ == "__main__":
 # return the prediction I
 # discriminate the latent space
 # return the prediction L
-# compute the loss between I and y => loss_I_y
-# compute the loss between L and y => loss_L_y
+# compute the loss between I and y = > loss_I_y
+# compute the loss between L and y = > loss_L_y
 
 # we want to minimize loss_I_y
 # we want to maximize loss_L_y
