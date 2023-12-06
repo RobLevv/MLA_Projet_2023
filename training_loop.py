@@ -23,10 +23,10 @@ class AutoEncoder(nn.Module):
         
 
         # recreate y to be of shape (batch_size, N_ATTRIBUTES, 2)
-        yhot = y.clone().detach().numpy()
-        yhot[yhot == -1] = 0
-        yhot = np.stack((yhot, 1-yhot), axis=2)
-        yhot = torch.tensor(yhot, dtype=torch.float32)
+        # yhot = y.clone().detach().numpy()
+        # yhot[yhot == -1] = 0
+        # yhot = np.stack((yhot, 1-yhot), axis=2)
+        # yhot = torch.tensor(yhot, dtype=torch.float32)
         # print("yhot", yhot.shape, yhot.dtype)
         # print("y", y.shape, y.dtype)
         # print("latent", latent.shape, latent.dtype)
@@ -72,13 +72,9 @@ class Discriminator(nn.Module):
     
 ##% This is the actual training loop
 # All above we need to define those elsewhere
-ae = AutoEncoder(encoder_layers, decoder_layers)
-dis = Discriminator(discriminator_layers)
 
-dataset = ImgDataset(attributes_csv_file='data/Anno/list_attr_celeba_lite.txt', img_root_dir='data/Img_lite')
-data_loader = DataLoader(dataset, batch_size=10, shuffle=True)
    
-def train(n_epochs:int, n_batch:int, autoencoder:AutoEncoder, discriminator:Discriminator, dataset:ImgDataset):
+def train(n_epochs:int, device, autoencoder:AutoEncoder, discriminator:Discriminator, dataset:ImgDataset):
     """
     Train the autoencoder, discriminator, latent discriminator and patch discriminator.
     """
@@ -86,6 +82,8 @@ def train(n_epochs:int, n_batch:int, autoencoder:AutoEncoder, discriminator:Disc
         loss_train = 0
         for batch_idx, batch in enumerate(data_loader):
             images, attributes = batch['image'], batch['attributes']
+            autoencoder.to(device)
+            images, attributes = images.to(device), attributes.to(device)
                         
             # print("\n\n\n", images.shape, attributes.shape)
             # print(images.dtype, attributes.dtype, "\n\n\n")
@@ -108,7 +106,19 @@ def train(n_epochs:int, n_batch:int, autoencoder:AutoEncoder, discriminator:Disc
             loss_adversarial = ... # NOT IMPLEMENTED YET ( loss_autoencoder - loss_discriminator )
             # print("loss_autoencoder", loss_autoencoder.shape, loss_autoencoder.dtype, loss_autoencoder)
             # print("loss_discriminator", loss_discriminator.shape, loss_discriminator.dtype, loss_discriminator)
-            
+
+            if batch_idx%1000 == 0:
+                print("Computed {}/{} images ({}%)\r".format(batch_idx*10, 202599, batch_idx*10/202599))
+                print(f'Epoch {epoch}, loss {loss_train/(batch_idx+1):.2f}')
+                images_cpu, decoded_cpu = images.cpu(), decoded.cpu()
+                fig, ax = plt.subplots(2, 10, figsize=(20, 4))
+                for i in range(10):
+                    ax[0, i].imshow(images_cpu[i].permute(1, 2, 0))
+                    ax[0, i].axis('off')
+                    ax[1, i].imshow(decoded_cpu[i].permute(1, 2, 0).detach().numpy())
+                    ax[1, i].axis('off')
+                plt.tight_layout()
+                plt.savefig("result_batch{}.png".format(batch_idx))
 
             # update loss
             loss_train += loss_autoencoder.item()
@@ -118,12 +128,20 @@ def train(n_epochs:int, n_batch:int, autoencoder:AutoEncoder, discriminator:Disc
 
 
 if __name__ == "__main__":
-    train(n_epochs=10, n_batch=10, autoencoder=ae, discriminator=dis, dataset=dataset)
+    import matplotlib.pyplot as plt
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    ae = AutoEncoder(encoder_layers, decoder_layers)
+    dis = Discriminator(discriminator_layers)
+    
+    dataset = ImgDataset(attributes_csv_file='data/Anno/list_attr_celeba.txt', img_root_dir='data/Img')
+    data_loader = DataLoader(dataset, batch_size=32, shuffle=True)
+    train(n_epochs=10, device=device, autoencoder=ae, discriminator=dis, dataset=dataset)
     batch = data_loader.__iter__().__next__()
     images, attributes = batch['image'], batch['attributes']
+    images, attributes = images.to(device), attributes.to(device)
     latent, decoded = ae(images, attributes)
+    images, decoded = images.cpu(), decoded.cpu()
     
-    import matplotlib.pyplot as plt
     
     fig, ax = plt.subplots(2, 10, figsize=(20, 4))
     for i in range(10):
@@ -132,6 +150,7 @@ if __name__ == "__main__":
         ax[1, i].imshow(decoded[i].permute(1, 2, 0).detach().numpy())
         ax[1, i].axis('off')
     plt.tight_layout()
+    plt.savefig("result_epoch{}.png".format(10))
     plt.show()
 
 ############################################################################################################
