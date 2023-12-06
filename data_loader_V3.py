@@ -3,7 +3,7 @@ import pandas as pd
 import torch
 import numpy as np
 
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, Subset
 from torchvision.io import read_image
 from torchvision.transforms.functional import crop, resize
 
@@ -108,4 +108,36 @@ if __name__ == "__main__":
         print("Batch {}:".format(i))
         print("Images shape:", images.shape)
         print("Attributes shape:", attributes.shape)
-        break
+        
+        
+def train_validation_test_split(
+        dataset:Dataset,
+        train_split:float=0.803,
+        test_split:float=0.099,
+        val_split:float=0.098,
+        shuffle:bool=False
+        ) -> tuple([dataset,dataset,dataset]):
+    
+    assert int(100*(train_split + test_split + val_split)) == 1, "train_split + test_split + val_split must be equals to 1"
+
+    idx = list(range(len(dataset)))
+
+    nb_val = np.round(len(dataset)*val_split)
+    nb_test = np.round(len(dataset)*test_split)
+    nb_train = len(dataset) - (nb_val + nb_test)
+
+    if shuffle:
+        np.random.shuffle(idx)
+        print(idx[:10])
+        idx_train = idx_train = idx[:nb_train]
+        idx_val = idx[nb_train:nb_val]
+        idx_test = idx[nb_train+nb_val:]
+    else:
+        idx_train = idx[:nb_train]
+        idx_val = idx[nb_train:nb_val]
+        idx_test = idx[nb_train+nb_val:]
+        
+    train_dataset = Subset(dataset, idx_train)
+    val_dataset= Subset(dataset,idx_val)
+    test_dataset= Subset(dataset,idx_test)
+    return train_dataset,val_dataset,test_dataset
