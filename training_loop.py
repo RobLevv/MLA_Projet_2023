@@ -5,20 +5,36 @@ from AutoEncoder import AutoEncoder
 from Discriminator import Discriminator
 
    
-def train(n_epochs:int, device, autoencoder:AutoEncoder, discriminator:Discriminator, data_loader:torch.utils.data.DataLoader) -> None:
+def train_loop(
+    n_epochs:int, 
+    device:torch.device,
+    autoencoder:AutoEncoder, 
+    discriminator:Discriminator, 
+    data_loader:torch.utils.data.DataLoader,
+    display:bool = False,
+    display_ultra_detailed:bool = False
+    ) -> None:
     """
-    Train the autoencoder, discriminator, latent discriminator and patch discriminator.
+    Train loop for the autoencoder and the discriminator
     """
+    
     for epoch in range(n_epochs):
-        loss_train = 0
-        for batch_idx, batch in enumerate(data_loader):
+        
+        # initialize epoch loss
+        epoch_loss = 0.
+        
+        for batch_nb, batch in enumerate(data_loader):
+            
+            # get the images and the attributes from the batch
             images, attributes = batch['image'], batch['attributes']
+            
+            # send the images and the attributes to the device
             autoencoder.to(device)
             images, attributes = images.to(device), attributes.to(device)
-                        
-            # print("\n\n\n", images.shape, attributes.shape)
-            # print(images.dtype, attributes.dtype, "\n\n\n")
             
+            if display_ultra_detailed:
+                print("images", images.shape, images.dtype)
+                print("attributes", attributes.shape, attributes.dtype)           
              
             # generate output
             latent, decoded = autoencoder(images, attributes)
@@ -39,22 +55,22 @@ def train(n_epochs:int, device, autoencoder:AutoEncoder, discriminator:Discrimin
             loss_discriminator.backward()
             discriminator.optimizer.step()
 
-            
             loss_adversarial = ... # NOT IMPLEMENTED YET ( loss_autoencoder - loss_discriminator )
             
-            """PRINT THE LOSSES"""
-            # print("  epoch", epoch, 
-            #       "  batch_idx", batch_idx, 
-            #       "  loss_autoencoder", round(loss_autoencoder.item(), 2), 
-            #       "  loss_discriminator", round(loss_discriminator.item(), 4))
+            if display_ultra_detailed:
+                # print the losses
+                print("  epoch", epoch, 
+                    "  batch_idx", batch_nb, 
+                    "  loss_autoencoder", round(loss_autoencoder.item(), 2), 
+                    "  loss_discriminator", round(loss_discriminator.item(), 4))
 
-            """PRINT THE NUMBER OF ATTRIBUTES PREDICTED CORRECTLY BY THE DISCRIMINATOR"""
-            # pred_attributes = torch.where(pred_y > 0, torch.ones_like(pred_y), -torch.ones_like(pred_y))
-            # print("nb of attributes predicted correctly", torch.sum(pred_attributes == attributes).item(), "over", pred_attributes.shape[0]*pred_attributes.shape[1])
+                # print the number of attributes predicted correctly by the discriminator
+                pred_attributes = torch.where(pred_y > 0, torch.ones_like(pred_y), -torch.ones_like(pred_y))
+                print("  nb of attributes predicted correctly", torch.sum(pred_attributes == attributes).item(), "over", pred_attributes.shape[0]*pred_attributes.shape[1])
 
-            if batch_idx%1000 == 0: # print every 1000 mini-batches, TODO implement a logger
-                print("Computed {}/{} images ({}%)\r".format(batch_idx*10, 202599, batch_idx*10/202599))
-                print(f'Epoch {epoch}, loss {loss_train/(batch_idx+1):.2f}')
+            if (batch_nb%1000 == 0) and display: # print every 1000 mini-batches, TODO implement a logger
+                print("Computed {}/{} images ({}%)\r".format(batch_nb*10, 202599, batch_nb*10/202599))
+                print(f'Epoch {epoch}, loss {epoch_loss/(batch_nb+1):.2f}')
                 images_cpu, decoded_cpu = images.cpu(), decoded.cpu()
                 fig, ax = plt.subplots(2, 10, figsize = (20, 4))
                 for i in range(10):
@@ -63,24 +79,43 @@ def train(n_epochs:int, device, autoencoder:AutoEncoder, discriminator:Discrimin
                     ax[1, i].imshow(decoded_cpu[i].permute(1, 2, 0).detach().numpy())
                     ax[1, i].axis('off')
                 plt.tight_layout()
-                plt.savefig("result_batch{}.png".format(batch_idx))
+                plt.savefig("result_batch{}.png".format(batch_nb))
 
-            # update loss
-            loss_train += loss_autoencoder.item()
-        loss_train /= len(data_loader)
-        print(f'Epoch {epoch}, loss {loss_train:.2f}')
+            # update epoch loss with the loss of the batch
+            epoch_loss += loss_autoencoder.item()
+        
+        epoch_loss /= len(data_loader)
+        if display:
+            print(f'Epoch {epoch}, loss {epoch_loss:.2f}')
         
 
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
+    
+    # initialize the device
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    
+    # initialize the models
     ae = AutoEncoder()
     dis = Discriminator()
-        
+    
+    # initialize the dataset and the data loader
     dataset = ImgDataset(attributes_csv_file = 'data/Anno/list_attr_celeba.txt', img_root_dir = 'data/Img')
     data_loader = torch.utils.data.DataLoader(dataset, batch_size = 32, shuffle = True)
-    train(n_epochs = 10, device = device, autoencoder = ae, discriminator = dis, data_loader = data_loader)
+    
+    # train the models
+    train_loop(
+        n_epochs = 10, 
+        device = device, 
+        autoencoder = ae, 
+        discriminator = dis, 
+        data_loader = data_loader,
+        display = True,
+        display_ultra_detailed = False
+        )
+    
+    # ??? TODO: comment this part
     batch = data_loader.__iter__().__next__()
     images, attributes = batch['image'], batch['attributes']
     images, attributes = images.to(device), attributes.to(device)
@@ -88,6 +123,7 @@ if __name__ == "__main__":
     images, decoded = images.cpu(), decoded.cpu()
     
     
+    # plot the images and the decoded images to compare
     fig, ax = plt.subplots(2, 10, figsize = (20, 4))
     for i in range(10):
         ax[0, i].imshow(images[i].permute(1, 2, 0))
