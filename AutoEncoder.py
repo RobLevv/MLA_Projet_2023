@@ -43,17 +43,4 @@ class AutoEncoder(torch.nn.Module):
             print("decoded", decoded.shape, decoded.dtype)
             
         return latent, decoded
-    
-    def loss(self, x, x_decoded, version:int = 0):
-        """
-        x: image
-        x_decoded: decoded image
-        version: 0 or 1
-        """
-        # first check that x and x_decoded have the same shape
-        assert x.shape == x_decoded.shape, "x and x_decoded must have the same shape"
         
-        if version == 0: # MSE built-in loss
-            return torch.nn.functional.mse_loss(x.float(), x_decoded).float()
-        else:
-            return torch.mean((x_decoded - x.float())**2) 

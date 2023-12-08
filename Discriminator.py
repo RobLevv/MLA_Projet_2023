@@ -22,20 +22,5 @@ class Discriminator(torch.nn.Module):
             print("input", input.shape, input.dtype)
             
         return self.discriminator(input)
-    
-    def loss(self, y, y_discriminated, version:int = 0):
-        """
-        y: attributes
-        y_discriminated: predicted attributes
-        version: 0 or 1
-        """
-        if version == 0: # MSE built-in loss
-            assert y.shape == y_discriminated.shape, "y and y_discriminated must have the same shape"
-            return torch.nn.functional.mse_loss(y.float(), y_discriminated).float()
-        else:
-            # Use torch.bernoulli to get binary values directly
-            m = torch.nn.LogSoftmax(dim=1)
-            criterion = torch.nn.NLLLoss()
-            loss_discriminator = criterion(m(y_discriminated), y)
-        return loss_discriminator
+        
     

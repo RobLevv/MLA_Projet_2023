@@ -3,6 +3,7 @@ import torch
 from data_loader_V3 import ImgDataset
 from AutoEncoder import AutoEncoder
 from Discriminator import Discriminator
+from objectives import adversarial_objective, discriminator_objective
 
 import numpy as np
 
@@ -41,25 +42,26 @@ def train_loop(
             # Generate the latent space and the decoded images (outputs from the autoencoder)
             latent, decoded = autoencoder(images, attributes)
             
+            # Generate the prediction of the discriminator
+            pred_y = discriminator(latent)
+            
             # Update the Encoder and Decoder weights
-            loss_autoencoder = autoencoder.loss(images, decoded,1)
+            loss_autoencoder = adversarial_objective(images, decoded, attributes, pred_y, lamb=0.9)
             autoencoder.optimizer.zero_grad() 
             loss_autoencoder.backward()
-            autoencoder.optimizer.step()   
+            autoencoder.optimizer.step()
 
             # Detach the gradient computation from autoencoder to avoid backpropagating through it
             latent.detach_()
-
+            
             # Generate the prediction of the discriminator
-            pred_y = discriminator(latent)  
+            pred_y = discriminator(latent)
             
             # Update the Discriminator weights          
-            loss_discriminator = discriminator.loss(attributes, pred_y,1)
+            loss_discriminator = discriminator_objective(attributes, pred_y)
             discriminator.optimizer.zero_grad()
             loss_discriminator.backward()
             discriminator.optimizer.step()
-
-            loss_adversarial = ... # NOT IMPLEMENTED YET ( loss_autoencoder - loss_discriminator )
             
             if display_ultra_detailed:
                 # print the losses

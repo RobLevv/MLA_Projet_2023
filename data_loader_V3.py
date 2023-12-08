@@ -53,6 +53,9 @@ class ImgDataset(Dataset):
         image = read_image(img_name)
         attributes = self.attributes_df.iloc[idx, 1:]
         attributes = np.array([attributes], dtype=float).reshape(-1)
+        # replace -1 by 0
+        attributes[attributes == -1] = 0
+        
         sample = {'image': image, 'attributes': attributes, 'image_name': img_name}
 
         if self.transform:
