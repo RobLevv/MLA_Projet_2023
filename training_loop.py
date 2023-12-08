@@ -43,10 +43,10 @@ def train_loop(
             latent, decoded = autoencoder(images, attributes)
             
             # Generate the prediction of the discriminator
-            pred_y = discriminator(latent)
+            y_pred = discriminator(latent)
             
             # Update the Encoder and Decoder weights
-            loss_autoencoder = adversarial_objective(images, decoded, attributes, pred_y, lamb=0.9)
+            loss_autoencoder = adversarial_objective(images, decoded, attributes, y_pred, lamb=0.9)
             autoencoder.optimizer.zero_grad() 
             loss_autoencoder.backward()
             autoencoder.optimizer.step()
@@ -55,10 +55,10 @@ def train_loop(
             latent.detach_()
             
             # Generate the prediction of the discriminator
-            pred_y = discriminator(latent)
+            y_pred = discriminator(latent)
             
             # Update the Discriminator weights          
-            loss_discriminator = discriminator_objective(attributes, pred_y)
+            loss_discriminator = discriminator_objective(attributes, y_pred)
             discriminator.optimizer.zero_grad()
             loss_discriminator.backward()
             discriminator.optimizer.step()
@@ -71,7 +71,7 @@ def train_loop(
                     "  loss_discriminator : ", round(loss_discriminator.item(), 4))
 
                 # print the number of attributes predicted correctly by the discriminator
-                pred_attributes = torch.where(pred_y > 0, torch.ones_like(pred_y), -torch.ones_like(pred_y))
+                pred_attributes = torch.where(y_pred > 0, torch.ones_like(y_pred), -torch.ones_like(y_pred))
                 print("  nb of attributes predicted correctly : ", torch.sum(pred_attributes == attributes).item(), "over", pred_attributes.shape[0]*pred_attributes.shape[1])
 
             if (batch_nb%1000 == 0) and display: # print every 1000 mini-batches, TODO implement a logger

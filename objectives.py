@@ -7,12 +7,12 @@ def reconstruction_objective(x, x_recon):
     """
     return torch.nn.functional.mse_loss(x.float(), x_recon).float()
 
-def discriminator_objective(y, y_discriminated):
+def discriminator_objective(y, y_pred):
     """
     y: attributes
     y_discriminated: predicted attributes
     """
-    return torch.nn.functional.binary_cross_entropy_with_logits(y_discriminated, y).float()
+    return torch.nn.functional.binary_cross_entropy_with_logits(y_pred, y).float()
 
 def adversarial_objective(x, x_recon, y, y_discriminated, lamb):
     """
