@@ -33,5 +33,9 @@ class Discriminator(torch.nn.Module):
             assert y.shape == y_discriminated.shape, "y and y_discriminated must have the same shape"
             return torch.nn.functional.mse_loss(y.float(), y_discriminated).float()
         else:
-            return -torch.mean(torch.log(y_discriminated))
+            # Use torch.bernoulli to get binary values directly
+            m = torch.nn.LogSoftmax(dim=1)
+            criterion = torch.nn.NLLLoss()
+            loss_discriminator = criterion(m(y_discriminated), y)
+        return loss_discriminator
     

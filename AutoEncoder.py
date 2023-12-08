@@ -56,4 +56,4 @@ class AutoEncoder(torch.nn.Module):
         if version == 0: # MSE built-in loss
             return torch.nn.functional.mse_loss(x.float(), x_decoded).float()
         else:
-            return torch.mean((x_decoded - x.float())**2)
+            return torch.mean((x_decoded - x.float())**2) 

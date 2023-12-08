@@ -42,7 +42,7 @@ def train_loop(
             latent, decoded = autoencoder(images, attributes)
             
             # Update the Encoder and Decoder weights
-            loss_autoencoder = autoencoder.loss(images, decoded)
+            loss_autoencoder = autoencoder.loss(images, decoded,1)
             autoencoder.optimizer.zero_grad() 
             loss_autoencoder.backward()
             autoencoder.optimizer.step()   
@@ -54,7 +54,7 @@ def train_loop(
             pred_y = discriminator(latent)  
             
             # Update the Discriminator weights          
-            loss_discriminator = discriminator.loss(attributes, pred_y)
+            loss_discriminator = discriminator.loss(attributes, pred_y,1)
             discriminator.optimizer.zero_grad()
             loss_discriminator.backward()
             discriminator.optimizer.step()
