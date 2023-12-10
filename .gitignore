@@ -1,3 +1,5 @@
 .ipynb_checkpoints/*
 data/Img/*
 __pycache__/*
+Logs/*
+```
