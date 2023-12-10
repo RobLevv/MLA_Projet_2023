@@ -1,6 +1,6 @@
 import torch
 
-from data_loader_V3 import ImgDataset
+from data_loader_V3 import ImgDataset, train_validation_test_split
 from AutoEncoder import AutoEncoder
 from Discriminator import Discriminator
 from objectives import adversarial_objective, discriminator_objective
@@ -49,6 +49,7 @@ def train_loop(
             
             # send model, images and attributes to the device ( GPU if available )
             autoencoder.to(device)
+            discriminator.to(device)
             images, attributes = images.to(device), attributes.to(device)
             
             if display_ultra_detailed:
@@ -92,6 +93,7 @@ def train_loop(
 
             # Update the log file
             if logger:
+                print("\rEpoch : " + str(epoch) + " / " + str(n_epochs) + "  batch_index : " + str(batch_nb) + " / " + str(len(data_loader)) + "  loss_autoencoder : " + str(round(loss_autoencoder.item(), 2)) + "  loss_discriminator : " + str(round(loss_discriminator.item(), 4)), end = "")
                 # open the log file in append mode
                 with open("Logs/log.txt", "a") as f:
                     # write the losses
@@ -140,6 +142,7 @@ def train_loop(
             f.write("End training : "+ str(time.time()) + "\n")
             f.write("#"*50 + "\n")
             f.write("The training took : " + str((time.time() - t0)//3600) + " hours, " + str((time.time() - t0)%3600//60) + " minutes, " + str((time.time() - t0)%60) + " seconds\n")
+        print("The training took : " + str((time.time() - t0)//3600) + " hours, " + str((time.time() - t0)%3600//60) + " minutes, " + str((time.time() - t0)%60) + " seconds\n")
             
 
 if __name__ == "__main__":
@@ -151,16 +154,19 @@ if __name__ == "__main__":
     dis = Discriminator()
     
     # initialize the dataset and the data loader
-    dataset = ImgDataset(attributes_csv_file = 'data/Anno/list_attr_celeba_lite.txt', img_root_dir = 'data/Img_lite')
-    data_loader = torch.utils.data.DataLoader(dataset, batch_size = 10, shuffle = True)
+    dataset = ImgDataset(attributes_csv_file = 'data/Anno/list_attr_celeba.txt', img_root_dir = 'data/Img')
+    data_loader = torch.utils.data.DataLoader(dataset, batch_size = 32, shuffle = True)
+
+    train_set, validation_set, test_set = train_validation_test_split(dataset, train_split = 0.01, test_split = 0.09, val_split = 0.9, shuffle = True)
+    train_data_loader = torch.utils.data.DataLoader(train_set, batch_size = 10, shuffle = True)
     
     # train the models
     train_loop(
-        n_epochs = 10, 
+        n_epochs = 100, 
         device = GPU, 
         autoencoder = ae, 
         discriminator = dis, 
-        data_loader = data_loader,
+        data_loader = train_data_loader,
         display = False,
         display_ultra_detailed = False,
         logger = True
