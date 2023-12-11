@@ -104,6 +104,10 @@ if __name__ == "__main__":
 
     print("Decoder Summary:")
     print(decoder_layers)
+    print( "Total number of parameters:", sum(p.numel() for p in decoder_layers.parameters() if p.requires_grad) )
+    print( "Total number of trainable parameters:", sum(p.numel() for p in decoder_layers.parameters() if p.requires_grad and p.is_leaf) )
+    print( "Total number of non-trainable parameters:", sum(p.numel() for p in decoder_layers.parameters() if not p.requires_grad) )
+
 
 #%% Discriminator
 # The discriminator is a C512 layer followed by a fully-connected neural network of two layers of size 512 and n repsectively.
