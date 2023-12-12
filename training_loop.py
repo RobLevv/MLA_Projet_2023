@@ -6,6 +6,7 @@ from Discriminator import Discriminator
 from objectives import adversarial_objective, discriminator_objective
 
 import matplotlib.pyplot as plt
+import numpy as np
 import time
 
    
@@ -110,9 +111,10 @@ def train_loop(
             epoch_loss += loss_autoencoder.item()
             
         # Plot and save the images and the decoded images to compare
-        if logger:
+        if logger and epoch%10==0:
             # Get the first batch of the data loader
             batch = data_loader.__iter__().__next__()
+            len_batch = len(batch['image'])
             # Get the images and the attributes from the batch
             images, attributes = batch['image'], batch['attributes']
             # Send images and attributes to the GPU, model already on GPU after training
@@ -122,12 +124,19 @@ def train_loop(
             # Send images and decoded back to the CPU
             images, decoded = images.cpu(), decoded.cpu()
             # plot the images and the decoded images to compare
-            fig, ax = plt.subplots(2, len(batch), figsize = (20, 4))
-            for i in range(len(batch)):
-                ax[0, i].imshow(images[i].permute(1, 2, 0))
-                ax[0, i].axis('off')
-                ax[1, i].imshow(decoded[i].permute(1, 2, 0).detach().numpy().clip(0, 1))
-                ax[1, i].axis('off')
+            fig, ax = plt.subplots(2, len_batch, figsize = (20, 4))
+            for i,image in enumerate(images):
+              image = image.detach().numpy()
+              image = image/np.max(image)
+              ax[0,i].imshow(np.transpose(image, (1,2,0)))
+              ax[0,i].axis('off')
+              ax[0,i].set_title('Original')
+            for i,image in enumerate(decoded):
+              image = image.detach().numpy()
+              image = image/np.max(image)
+              ax[1,i].imshow(np.transpose(image, (1,2,0)))
+              ax[1,i].axis('off')
+              ax[1,i].set_title('Decoded')
             plt.tight_layout()
             plt.savefig("Logs/epoch_" + str(epoch) + ".png")
             plt.close()
@@ -152,17 +161,20 @@ if __name__ == "__main__":
     # initialize the models
     ae = AutoEncoder()
     dis = Discriminator()
+
+    # load model
+    ae.load_state_dict(torch.load("Models/autoencoder_e1.pt", map_location = torch.device('cpu')))
     
     # initialize the dataset and the data loader
-    dataset = ImgDataset(attributes_csv_file = 'data/Anno/list_attr_celeba.txt', img_root_dir = 'data/Img')
+    dataset = ImgDataset(attributes_csv_file = 'data/Anno/list_attr_celeba_lite.txt', img_root_dir = 'data/Img_lite')
     data_loader = torch.utils.data.DataLoader(dataset, batch_size = 32, shuffle = True)
 
-    train_set, validation_set, test_set = train_validation_test_split(dataset, train_split = 0.01, test_split = 0.09, val_split = 0.9, shuffle = True)
+    train_set, validation_set, test_set = train_validation_test_split(dataset, train_split = 1., test_split = 0., val_split = 0., shuffle = True)
     train_data_loader = torch.utils.data.DataLoader(train_set, batch_size = 10, shuffle = True)
     
     # train the models
     train_loop(
-        n_epochs = 100, 
+        n_epochs = 10, 
         device = GPU, 
         autoencoder = ae, 
         discriminator = dis, 
@@ -171,6 +183,10 @@ if __name__ == "__main__":
         display_ultra_detailed = False,
         logger = True
         )
+
+    # save the model
+    torch.save(ae.state_dict(), "Models/autoencoder.pt")
+    # torch.save(dis.state_dict(), "Models/discriminator.pt")
     
     # plot the losses
     with open("Logs/log.txt", "r") as f:
