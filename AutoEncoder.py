@@ -43,4 +43,11 @@ class AutoEncoder(torch.nn.Module):
             print("decoded", decoded.shape, decoded.dtype)
             
         return latent, decoded
-        
+
+# %% TESTS
+
+latent, decoded = AutoEncoder()(torch.rand((1, 3, 256, 256)), torch.rand((1, 40)))
+
+assert latent.shape == (1, 512, 2, 2), "The inference function does not work properly. Shape issue for latent"
+assert decoded.shape == (1, 3, 256, 256), "The inference function does not work properly. Shape issue for decoded"
+assert max(decoded.flatten()) <= 1 and min(decoded.flatten()) >= 0, "The inference function does not work properly. Normalization issue. for decoded (min = {}, max = {})".format(min(decoded.flatten()), max(decoded.flatten()))
