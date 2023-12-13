@@ -6,44 +6,53 @@ from AutoEncoder import AutoEncoder
 from Discriminator import Discriminator
 from objectives import adversarial_objective, discriminator_objective, reconstruction_objective
 
+from torch.utils.tensorboard import SummaryWriter
 import matplotlib.pyplot as plt
 import numpy as np
 import time
+import tqdm
 
-   
+
 def train_loop(
     n_epochs:int, 
     device:torch.device,
     autoencoder:AutoEncoder, 
     discriminator:Discriminator, 
     data_loader:torch.utils.data.DataLoader,
-    logger:bool = False
+    log_directory:str = "Logs",
+    plot_images:bool = True
     ) -> None:
     """
     Train loop for the autoencoder and the discriminator
     """
 
-    # Create the log file and write the statistics of the training
-    if logger:
-        t0 = time.time()
-        with open("Logs/log.txt", "w") as f:
-            f.write("Training statistics : \n")
-            f.write(" Number of Epochs : " + str(n_epochs) + "\n")
-            f.write(" Size of training dataset : " + str(len(data_loader)) + "\n")
-            f.write(" Batch size : " + str(data_loader.batch_size) + "\n")
-            f.write(" Number of images in the training dataset : " + str(len(data_loader)*data_loader.batch_size) + "\n")
-            f.write("#"*50 + "\n")
-            f.write("Start training : "+ str(time.time()) + "\n")
-            f.write("#"*50 + "\n")
-            
+    start_time = time.time()
+    
+    writer = SummaryWriter(log_directory, filename_suffix="_log")
+    
+    writer.add_text("Description", "Number of epochs : " + str(n_epochs) + "\n" +
+                    "Size of training dataset : " + str(len(data_loader)) + "\n" +
+                    "Batch size : " + str(data_loader.batch_size) + "\n" +
+                    "Number of images in the training dataset : " + str(len(data_loader)*data_loader.batch_size) + "\n" +
+                    "#"*50 + "\n" +
+                    "Start training : "+ str(start_time) + "\n" +
+                    "#"*50 + "\n")
+    
     # loop over the epochs
     for epoch in range(n_epochs):
-        epoch_start_time = time.time()
+        
+        pbar = tqdm.tqdm(enumerate(data_loader), total=len(data_loader))
         
         # initialize epoch loss
         epoch_loss = 0.
         
+        current_time = time.time() - start_time
+        
+        print("Epoch : " + str(epoch) + " / " + str(n_epochs) + ", {}H{}M{}S".format(current_time//3600, current_time%3600//60, current_time%60))
+        
         for batch_nb, batch in enumerate(data_loader):
+            
+            pbar.update(1)
             
             # get the images and the attributes from the batch
             images, attributes = batch['image'], batch['attributes']
@@ -75,41 +84,17 @@ def train_loop(
             loss_discriminator.backward()
             discriminator.optimizer.step()
 
-            # Update the log file
-            if logger:
-                # print("\r  epoch : ", epoch, 
-                #     "  batch_index : ", batch_nb, 
-                #     "  reconstruction objective : ", round(reconstruction_objective(images, decoded).item(), 2),
-                #     "  discriminator objective y: ", round(discriminator_objective(attributes, y_pred).item(), 4),
-                #     "  discriminator objective 1-y : ", round(discriminator_objective(attributes, 1-y_pred).item(), 4),
-                #     "  adversarial objective : ", round(adversarial_objective(images, decoded, attributes, y_pred, lamb=0.9).item(), 2), end="")
-                # print("\rEpoch : " + str(epoch) + " / " + str(n_epochs) + "  batch_index : " + str(batch_nb) + " / " + str(len(data_loader)) + "  loss_autoencoder : " + str(round(loss_autoencoder.item(), 2)) + "  loss_discriminator : " + str(round(loss_discriminator.item(), 4)), end = "")
-                # open the log file in append mode
-                with open("Logs/log.txt", "a") as f:
-                    # write the losses
-                    f.write("  epoch : " + str(epoch) + " / " + str(n_epochs) +
-                        "  batch_index : " + str(batch_nb) + " / " + str(len(data_loader)) + "\n" +
-                        "  loss_autoencoder : " + str(round(loss_autoencoder.item(), 2)) + 
-                        "  loss_discriminator : " + str(round(loss_discriminator.item(), 4)) + "\n")
-
-                    # write the number of attributes predicted correctly by the discriminator
-                    pred_attributes = torch.where(y_pred > 0, torch.ones_like(y_pred), -torch.ones_like(y_pred))
-                    f.write("  nb of attributes predicted correctly : " + str(torch.sum(pred_attributes == attributes).item()) + " / " + str(pred_attributes.shape[0]*pred_attributes.shape[1]) + "\n")
-            
             # update epoch loss with the loss of the batch
             epoch_loss += loss_autoencoder.item()
             
-            progress = (batch_nb + 1) / len(data_loader)
-            elapsed_time = time.time() - epoch_start_time
-            remaining_time = elapsed_time / progress - elapsed_time
-            
-            # print the progress
-            print("\rEpoch : " + str(epoch) + " / " + str(n_epochs) + "  batch_index : " + str(batch_nb) + " / " + str(len(data_loader)) + "  loss_autoencoder : " + str(round(loss_autoencoder.item(), 2)) + "  loss_discriminator : " + str(round(loss_discriminator.item(), 4)) + "  progress : " + str(round(progress*100, 2)) + "%  elapsed time : " + str(round(elapsed_time//3600)) + " hours, " + str(round(elapsed_time%3600//60)) + " minutes, " + str(round(elapsed_time%60)) + " seconds  remaining time : " + str(round(remaining_time//3600)) + " hours, " + str(round(remaining_time%3600//60)) + " minutes, " + str(round(remaining_time%60)) + " seconds", end = "")
-            
-            
+            # write the losses in the log file
+            global_batch_nb = epoch*len(data_loader) + batch_nb
+            writer.add_scalar("Reconstruction_objective", reconstruction_objective(images, decoded).item(), global_batch_nb)
+            writer.add_scalar("Adversarial_objective", loss_autoencoder.item(), global_batch_nb)
+            writer.add_scalar("Discriminator_objective", loss_discriminator.item(), global_batch_nb)
             
         # Plot and save the images and the decoded images to compare
-        if logger and epoch%1==0:
+        if plot_images:
             # Get the first batch of the data loader
             batch = data_loader.__iter__().__next__()
             len_batch = len(batch['image'])
@@ -140,15 +125,15 @@ def train_loop(
             plt.close()
         
         epoch_loss /= len(data_loader)
-    if logger:
-        # write the end of the training in the log file
-        with open("Logs/log.txt", "a") as f:
-            f.write("#"*50 + "\n")
-            f.write("End training : "+ str(time.time()) + "\n")
-            f.write("#"*50 + "\n")
-            f.write("The training took : " + str((time.time() - t0)//3600) + " hours, " + str((time.time() - t0)%3600//60) + " minutes, " + str((time.time() - t0)%60) + " seconds\n")
-        print("The training took : " + str((time.time() - t0)//3600) + " hours, " + str((time.time() - t0)%3600//60) + " minutes, " + str((time.time() - t0)%60) + " seconds\n")
-            
+    
+    current_time = time.time() - start_time
+    
+    # write the end of the training in the log file
+    writer.add_text("Description", "End training : "+ str(time.time()) + "\n" +
+                    "#"*50 + "\n" +
+                    "The training took : " + str(current_time//3600) + " hours, " + str(current_time%3600//60) + " minutes, " + str(current_time%60) + " seconds\n")
+    writer.close()
+    
 
 if __name__ == "__main__":
     # initialize the gpu if available as material acceleration
@@ -170,7 +155,7 @@ if __name__ == "__main__":
 
     train_set, validation_set, test_set = train_validation_test_split(dataset, train_split = 0.1, test_split = 0.9, val_split = 0., shuffle = True)
     train_data_loader = torch.utils.data.DataLoader(train_set, batch_size = 50, shuffle = True)
-    
+        
     # train the models
     train_loop(
         n_epochs = 5, 
@@ -178,7 +163,7 @@ if __name__ == "__main__":
         autoencoder = ae, 
         discriminator = dis, 
         data_loader = train_data_loader,
-        logger = True
+        log_directory = "Logs"
         )
 
     # save the model
