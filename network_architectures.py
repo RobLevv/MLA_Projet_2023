@@ -125,10 +125,10 @@ discriminator_layers = Sequential(
     LeakyReLU(0.2, inplace=True),
 
     # Fully-connected layer with size n (assuming n is the number of attributes)
-    Linear(512, N_ATTRIBUTES)
+    Linear(512, N_ATTRIBUTES),
     
     # Sigmoid activation function
-    # Sigmoid()
+    Sigmoid()
 )
 
 if __name__ == "__main__":
