@@ -2,7 +2,7 @@
 # weirdly, we can't run the 3 networks together because of memory issues, so we have to run them separately.
 
 #%% IMPORTS
-from torch.nn import Sequential, Conv2d, ConvTranspose2d, BatchNorm2d, ReLU, LeakyReLU, Flatten, Linear
+from torch.nn import Sequential, Conv2d, ConvTranspose2d, BatchNorm2d, ReLU, LeakyReLU, Flatten, Linear, Sigmoid
 
 IMG_SIZE = (3, 256, 256)
 N_ATTRIBUTES = 40
@@ -125,7 +125,10 @@ discriminator_layers = Sequential(
     LeakyReLU(0.2, inplace=True),
 
     # Fully-connected layer with size n (assuming n is the number of attributes)
-    Linear(512, N_ATTRIBUTES)
+    Linear(512, N_ATTRIBUTES),
+
+    # sigmoid Activation
+    Sigmoid()
 )
 
 if __name__ == "__main__":
