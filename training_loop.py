@@ -4,9 +4,9 @@ from data_loader_V3 import ImgDataset
 from utils import train_validation_test_split
 from AutoEncoder import AutoEncoder
 from Discriminator import Discriminator
+from Logger import Logger
 from objectives import adversarial_objective, discriminator_objective, reconstruction_objective
 
-from torch.utils.tensorboard import SummaryWriter
 import matplotlib.pyplot as plt
 import numpy as np
 import time
@@ -20,7 +20,8 @@ def train_loop(
     discriminator:Discriminator, 
     data_loader:torch.utils.data.DataLoader,
     log_directory:str = "Logs",
-    plot_images:bool = True
+    plot_images:bool = True,
+    write_logs_every:int = 5,
     ) -> None:
     """
     Train loop for the autoencoder and the discriminator
@@ -28,9 +29,11 @@ def train_loop(
 
     start_time = time.time()
     
-    writer = SummaryWriter(log_directory, filename_suffix="_log")
+    dir_name = log_directory + "/start_" + time.strftime("%Y_%m_%d_%H-%M-%S", time.localtime(start_time)) + "_logs"
+        
+    writer = Logger(log_dir=dir_name)
     
-    writer.add_text("Description", "Number of epochs : " + str(n_epochs) + "\n" +
+    writer.add("Description", "Number of epochs : " + str(n_epochs) + "\n" +
                     "Size of training dataset : " + str(len(data_loader)) + "\n" +
                     "Batch size : " + str(data_loader.batch_size) + "\n" +
                     "Number of images in the training dataset : " + str(len(data_loader)*data_loader.batch_size) + "\n" +
@@ -41,14 +44,14 @@ def train_loop(
     # loop over the epochs
     for epoch in range(n_epochs):
         
-        pbar = tqdm.tqdm(enumerate(data_loader), total=len(data_loader))
-        
         # initialize epoch loss
         epoch_loss = 0.
         
         current_time = time.time() - start_time
         
-        print("Epoch : " + str(epoch) + " / " + str(n_epochs) + ", {}H{}M{}S".format(current_time//3600, current_time%3600//60, current_time%60))
+        print("Epoch : " + str(epoch) + " / " + str(n_epochs) + time.strftime(" (%H:%M:%S)", time.gmtime(current_time)))
+        
+        pbar = tqdm.tqdm(enumerate(data_loader), total=len(data_loader))
         
         for batch_nb, batch in enumerate(data_loader):
             
@@ -88,10 +91,13 @@ def train_loop(
             epoch_loss += loss_autoencoder.item()
             
             # write the losses in the log file
-            global_batch_nb = epoch*len(data_loader) + batch_nb
-            writer.add_scalar("Reconstruction_objective", reconstruction_objective(images, decoded).item(), global_batch_nb)
-            writer.add_scalar("Adversarial_objective", loss_autoencoder.item(), global_batch_nb)
-            writer.add_scalar("Discriminator_objective", loss_discriminator.item(), global_batch_nb)
+            writer.add("Reconstruction_objective", reconstruction_objective(images, decoded).item())
+            writer.add("Adversarial_objective", loss_autoencoder.item())
+            writer.add("Discriminator_objective", loss_discriminator.item())
+            
+            if batch_nb % write_logs_every == 0:
+                writer.write()
+            
             
         # Plot and save the images and the decoded images to compare
         if plot_images:
@@ -121,7 +127,7 @@ def train_loop(
               ax[1,i].axis('off')
               ax[1,i].set_title('Decoded')
             plt.tight_layout()
-            plt.savefig("Logs/epoch_" + str(epoch) + ".png")
+            plt.savefig(dir_name + "/plots/epoch_" + str(epoch) + ".png")
             plt.close()
         
         epoch_loss /= len(data_loader)
@@ -129,10 +135,9 @@ def train_loop(
     current_time = time.time() - start_time
     
     # write the end of the training in the log file
-    writer.add_text("Description", "End training : "+ str(time.time()) + "\n" +
+    writer.add("Description", "End training : "+ str(time.time()) + "\n" +
                     "#"*50 + "\n" +
-                    "The training took : " + str(current_time//3600) + " hours, " + str(current_time%3600//60) + " minutes, " + str(current_time%60) + " seconds\n")
-    writer.close()
+                    "The training took : " + str(current_time//3600) + " hours, " + str(current_time%3600//60) + " minutes, " + str(round(current_time%60)) + " seconds\n")
     
 
 if __name__ == "__main__":
