@@ -3,7 +3,7 @@ import torch
 from data_loader_V3 import ImgDataset, train_validation_test_split
 from AutoEncoder import AutoEncoder
 from Discriminator import Discriminator
-from objectives import adversarial_objective, discriminator_objective
+from objectives import adversarial_objective, discriminator_objective, reconstruction_objective
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -16,8 +16,6 @@ def train_loop(
     autoencoder:AutoEncoder, 
     discriminator:Discriminator, 
     data_loader:torch.utils.data.DataLoader,
-    display:bool = False,
-    display_ultra_detailed:bool = False,
     logger:bool = False
     ) -> None:
     """
@@ -51,11 +49,7 @@ def train_loop(
             # send model, images and attributes to the device ( GPU if available )
             autoencoder.to(device)
             discriminator.to(device)
-            images, attributes = images.to(device), attributes.to(device)
-            
-            if display_ultra_detailed:
-                print("images", images.shape, images.dtype)
-                print("attributes", attributes.shape, attributes.dtype)           
+            images, attributes = images.to(device), attributes.to(device)    
              
             # Generate the latent space and the decoded images (outputs from the autoencoder)
             latent, decoded = autoencoder(images, attributes)
@@ -81,19 +75,14 @@ def train_loop(
             loss_discriminator.backward()
             discriminator.optimizer.step()
 
-            if display_ultra_detailed:
-                # print the losses
-                print("  epoch : ", epoch, 
-                    "  batch_index : ", batch_nb, 
-                    "  loss_autoencoder : ", round(loss_autoencoder.item(), 2), 
-                    "  loss_discriminator : ", round(loss_discriminator.item(), 4))
-
-                # print the number of attributes predicted correctly by the discriminator
-                pred_attributes = torch.where(y_pred > 0, torch.ones_like(y_pred), -torch.ones_like(y_pred))
-                print("  nb of attributes predicted correctly : ", torch.sum(pred_attributes == attributes).item(), " / ", pred_attributes.shape[0]*pred_attributes.shape[1])
-
             # Update the log file
             if logger:
+                # print("\r  epoch : ", epoch, 
+                #     "  batch_index : ", batch_nb, 
+                #     "  reconstruction objective : ", round(reconstruction_objective(images, decoded).item(), 2),
+                #     "  discriminator objective y: ", round(discriminator_objective(attributes, y_pred).item(), 4),
+                #     "  discriminator objective 1-y : ", round(discriminator_objective(attributes, 1-y_pred).item(), 4),
+                #     "  adversarial objective : ", round(adversarial_objective(images, decoded, attributes, y_pred, lamb=0.9).item(), 2), end="")
                 print("\rEpoch : " + str(epoch) + " / " + str(n_epochs) + "  batch_index : " + str(batch_nb) + " / " + str(len(data_loader)) + "  loss_autoencoder : " + str(round(loss_autoencoder.item(), 2)) + "  loss_discriminator : " + str(round(loss_discriminator.item(), 4)), end = "")
                 # open the log file in append mode
                 with open("Logs/log.txt", "a") as f:
@@ -111,7 +100,7 @@ def train_loop(
             epoch_loss += loss_autoencoder.item()
             
         # Plot and save the images and the decoded images to compare
-        if logger and epoch%10==0:
+        if logger and epoch%1==0:
             # Get the first batch of the data loader
             batch = data_loader.__iter__().__next__()
             len_batch = len(batch['image'])
@@ -142,8 +131,6 @@ def train_loop(
             plt.close()
         
         epoch_loss /= len(data_loader)
-        if display:
-            print(f'Epoch {epoch}, loss {epoch_loss:.2f}')
     if logger:
         # write the end of the training in the log file
         with open("Logs/log.txt", "a") as f:
@@ -163,24 +150,22 @@ if __name__ == "__main__":
     dis = Discriminator()
 
     # load model
-    ae.load_state_dict(torch.load("Models/autoencoder_e1.pt", map_location = torch.device('cpu')))
+    # ae.load_state_dict(torch.load("Models/autoencoder_e1.pt", map_location = torch.device('cpu')))
     
     # initialize the dataset and the data loader
-    dataset = ImgDataset(attributes_csv_file = 'data/Anno/list_attr_celeba_lite.txt', img_root_dir = 'data/Img_lite')
-    data_loader = torch.utils.data.DataLoader(dataset, batch_size = 32, shuffle = True)
+    dataset = ImgDataset(attributes_csv_file = 'data/Anno/list_attr_celeba.txt', img_root_dir = 'data/Img')
+    # data_loader = torch.utils.data.DataLoader(dataset, batch_size = 32, shuffle = True)
 
-    train_set, validation_set, test_set = train_validation_test_split(dataset, train_split = 1., test_split = 0., val_split = 0., shuffle = True)
-    train_data_loader = torch.utils.data.DataLoader(train_set, batch_size = 10, shuffle = True)
+    train_set, validation_set, test_set = train_validation_test_split(dataset, train_split = 0.1, test_split = 0.9, val_split = 0., shuffle = True)
+    train_data_loader = torch.utils.data.DataLoader(train_set, batch_size = 20, shuffle = True)
     
     # train the models
     train_loop(
-        n_epochs = 10, 
+        n_epochs = 5, 
         device = GPU, 
         autoencoder = ae, 
         discriminator = dis, 
         data_loader = train_data_loader,
-        display = False,
-        display_ultra_detailed = False,
         logger = True
         )
 
