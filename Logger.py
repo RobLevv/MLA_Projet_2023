@@ -18,10 +18,10 @@ class Logger:
         # if the file already exists, we append the new values
         if os.path.isfile(name_file):
             with open(name_file, "a") as f:
-                f.write(str(message))
+                f.write(str(message) + self.separator)
         
         # otherwise we create the directory and the file
         else:
             os.makedirs(self.log_dir, exist_ok=True)
             with open(name_file, "w") as f:
-                f.write(str(message))
+                f.write(str(message) + self.separator)
