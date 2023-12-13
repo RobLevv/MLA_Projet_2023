@@ -209,4 +209,3 @@ if __name__ == "__main__":
     plt.ylabel("loss")
     plt.legend()
     plt.savefig("Logs/losses.png")
-    
