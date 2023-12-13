@@ -38,6 +38,7 @@ def train_loop(
             
     # loop over the epochs
     for epoch in range(n_epochs):
+        epoch_start_time = time.time()
         
         # initialize epoch loss
         epoch_loss = 0.
@@ -48,8 +49,6 @@ def train_loop(
             images, attributes = batch['image'], batch['attributes']
             
             # send model, images and attributes to the device ( GPU if available )
-            autoencoder.to(device)
-            discriminator.to(device)
             images, attributes = images.to(device), attributes.to(device)    
              
             # Generate the latent space and the decoded images (outputs from the autoencoder)
@@ -84,7 +83,7 @@ def train_loop(
                 #     "  discriminator objective y: ", round(discriminator_objective(attributes, y_pred).item(), 4),
                 #     "  discriminator objective 1-y : ", round(discriminator_objective(attributes, 1-y_pred).item(), 4),
                 #     "  adversarial objective : ", round(adversarial_objective(images, decoded, attributes, y_pred, lamb=0.9).item(), 2), end="")
-                print("\rEpoch : " + str(epoch) + " / " + str(n_epochs) + "  batch_index : " + str(batch_nb) + " / " + str(len(data_loader)) + "  loss_autoencoder : " + str(round(loss_autoencoder.item(), 2)) + "  loss_discriminator : " + str(round(loss_discriminator.item(), 4)), end = "")
+                # print("\rEpoch : " + str(epoch) + " / " + str(n_epochs) + "  batch_index : " + str(batch_nb) + " / " + str(len(data_loader)) + "  loss_autoencoder : " + str(round(loss_autoencoder.item(), 2)) + "  loss_discriminator : " + str(round(loss_discriminator.item(), 4)), end = "")
                 # open the log file in append mode
                 with open("Logs/log.txt", "a") as f:
                     # write the losses
@@ -100,6 +99,15 @@ def train_loop(
             # update epoch loss with the loss of the batch
             epoch_loss += loss_autoencoder.item()
             
+            progress = (batch_nb + 1) / len(data_loader)
+            elapsed_time = time.time() - epoch_start_time
+            remaining_time = elapsed_time / progress - elapsed_time
+            
+            # print the progress
+            print("\rEpoch : " + str(epoch) + " / " + str(n_epochs) + "  batch_index : " + str(batch_nb) + " / " + str(len(data_loader)) + "  loss_autoencoder : " + str(round(loss_autoencoder.item(), 2)) + "  loss_discriminator : " + str(round(loss_discriminator.item(), 4)) + "  progress : " + str(round(progress*100, 2)) + "%  elapsed time : " + str(round(elapsed_time//3600)) + " hours, " + str(round(elapsed_time%3600//60)) + " minutes, " + str(round(elapsed_time%60)) + " seconds  remaining time : " + str(round(remaining_time//3600)) + " hours, " + str(round(remaining_time%3600//60)) + " minutes, " + str(round(remaining_time%60)) + " seconds", end = "")
+            
+            
+            
         # Plot and save the images and the decoded images to compare
         if logger and epoch%1==0:
             # Get the first batch of the data loader
@@ -112,7 +120,7 @@ def train_loop(
             # Generate the latent space and the decoded images (outputs from the autoencoder)
             latent, decoded = autoencoder(images, attributes)
             # Send images and decoded back to the CPU
-            images, decoded = images.cpu(), decoded.cpu()
+            images, decoded = images.cpu(), decoded.cpu()           
             # plot the images and the decoded images to compare
             fig, ax = plt.subplots(2, len_batch, figsize = (20, 4))
             for i,image in enumerate(images):
@@ -149,6 +157,9 @@ if __name__ == "__main__":
     # initialize the models
     ae = AutoEncoder()
     dis = Discriminator()
+    
+    ae.to(GPU)
+    dis.to(GPU)
 
     # load model
     # ae.load_state_dict(torch.load("Models/autoencoder_e1.pt", map_location = torch.device('cpu')))
