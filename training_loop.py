@@ -154,11 +154,11 @@ if __name__ == "__main__":
     # data_loader = torch.utils.data.DataLoader(dataset, batch_size = 32, shuffle = True)
 
     train_set, validation_set, test_set = train_validation_test_split(dataset, train_split = 0.1, test_split = 0.9, val_split = 0., shuffle = True)
-    train_data_loader = torch.utils.data.DataLoader(train_set, batch_size = 50, shuffle = True)
+    train_data_loader = torch.utils.data.DataLoader(train_set, batch_size = 15, shuffle = True)
         
     # train the models
     train_loop(
-        n_epochs = 5, 
+        n_epochs = 7, 
         device = GPU, 
         autoencoder = ae, 
         discriminator = dis, 
