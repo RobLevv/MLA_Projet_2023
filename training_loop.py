@@ -50,7 +50,7 @@ def train_loop(
         
         print("Epoch : " + str(epoch + 1) + "/" + str(n_epochs) + " time: " + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start_time)))
         
-        pbar = tqdm.tqdm(enumerate(data_loader), total=len(data_loader))
+        pbar = tqdm.tqdm(enumerate(data_loader), total=len(data_loader), ncols=10)
         
         for batch_nb, batch in enumerate(data_loader):
             
@@ -154,7 +154,7 @@ if __name__ == "__main__":
     dataset = ImgDataset(attributes_csv_file = 'data/Anno/list_attr_celeba.txt', img_root_dir = 'data/Img')
     # data_loader = torch.utils.data.DataLoader(dataset, batch_size = 32, shuffle = True)
 
-    train_set, validation_set, test_set = train_validation_test_split(dataset, train_split = 0.1, test_split = 0.9, val_split = 0., shuffle = True)
+    train_set, validation_set, test_set = train_validation_test_split(dataset, train_split = 0.001, test_split = 0.999, val_split = 0., shuffle = True)
     train_data_loader = torch.utils.data.DataLoader(train_set, batch_size = 15, shuffle = True)
         
     # train the models
