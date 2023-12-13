@@ -1,6 +1,7 @@
 import torch
 
-from data_loader_V3 import ImgDataset, train_validation_test_split
+from data_loader_V3 import ImgDataset
+from utils import train_validation_test_split
 from AutoEncoder import AutoEncoder
 from Discriminator import Discriminator
 from objectives import adversarial_objective, discriminator_objective, reconstruction_objective
