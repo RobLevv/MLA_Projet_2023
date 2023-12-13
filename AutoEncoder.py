@@ -34,7 +34,7 @@ class AutoEncoder(torch.nn.Module):
         
         # decode latent_y to output (image)
         decoded = self.decoder(latent_y)
-        decoded = decoded/max(decoded.flatten())    #normalize the output
+        decoded = torch.sigmoid(decoded)    #normalize the output
         
         if display: 
             print("input_x", input_x.shape, input_x.dtype)
