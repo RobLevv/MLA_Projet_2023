@@ -126,8 +126,13 @@ discriminator_layers = Sequential(
 
     # Fully-connected layer with size n (assuming n is the number of attributes)
     Linear(512, N_ATTRIBUTES),
+<<<<<<< HEAD
 
     # sigmoid Activation
+=======
+    
+    # Sigmoid activation
+>>>>>>> ad0a6be382b744e54f61f55c443878d28bb8f462
     Sigmoid()
 )
 

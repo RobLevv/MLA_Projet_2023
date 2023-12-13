@@ -51,6 +51,8 @@ class ImgDataset(Dataset):
         img_name = os.path.join(self.root_dir,
                                 self.attributes_df.iloc[idx, 0])
         image = read_image(img_name)
+        # normalize the images between 0 and 1 (instead of 0 and 255) to avoid overflow in the loss function:
+        image = image.float() / 255.
         attributes = self.attributes_df.iloc[idx, 1:]
         attributes = np.array([attributes], dtype=float).reshape(-1)
         # replace -1 by 0

@@ -75,6 +75,17 @@ def train_loop(
             loss_discriminator.backward()
             discriminator.optimizer.step()
 
+            if display_ultra_detailed:
+                # print the losses
+                print("  epoch : ", epoch, 
+                    "  batch_index : ", batch_nb, 
+                    "  loss_autoencoder : ", round(loss_autoencoder.item(), 2), 
+                    "  loss_discriminator : ", round(loss_discriminator.item(), 4))
+
+                # print the number of attributes predicted correctly by the discriminator
+                pred_attributes = torch.where(y_pred > 0, torch.ones_like(y_pred), -torch.ones_like(y_pred))
+                print("  nb of attributes predicted correctly : ", torch.sum(pred_attributes == attributes).item(), " / ", pred_attributes.shape[0]*pred_attributes.shape[1])
+
             # Update the log file
             if logger:
                 # print("\r  epoch : ", epoch, 
@@ -194,4 +205,3 @@ if __name__ == "__main__":
     plt.ylabel("loss")
     plt.legend()
     plt.savefig("Logs/losses.png")
-    
