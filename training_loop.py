@@ -3,7 +3,7 @@ import torch
 from data_loader_V3 import ImgDataset, train_validation_test_split
 from AutoEncoder import AutoEncoder
 from Discriminator import Discriminator
-from objectives import adversarial_objective, discriminator_objective
+from objectives import adversarial_objective, discriminator_objective, reconstruction_objective
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -83,10 +83,16 @@ def train_loop(
 
             if display_ultra_detailed:
                 # print the losses
+                # print("  epoch : ", epoch, 
+                #     "  batch_index : ", batch_nb, 
+                #     "  loss_autoencoder : ", round(loss_autoencoder.item(), 2), 
+                #     "  loss_discriminator : ", round(loss_discriminator.item(), 4))
                 print("  epoch : ", epoch, 
                     "  batch_index : ", batch_nb, 
-                    "  loss_autoencoder : ", round(loss_autoencoder.item(), 2), 
-                    "  loss_discriminator : ", round(loss_discriminator.item(), 4))
+                    "  reconstruction objective : ", round(reconstruction_objective(images, decoded).item(), 2),
+                    "  discriminator objective : ", round(discriminator_objective(attributes, y_pred).item(), 4),
+                    "  adversarial objective : ", round(adversarial_objective(images, decoded, attributes, y_pred, lamb=0.9).item(), 2))
+
 
                 # print the number of attributes predicted correctly by the discriminator
                 pred_attributes = torch.where(y_pred > 0, torch.ones_like(y_pred), -torch.ones_like(y_pred))
