@@ -30,7 +30,7 @@ def train_loop(
     
     dir_name = log_directory + "/start_" + time.strftime("%Y_%m_%d_%H-%M-%S", time.localtime(start_time)) + "_logs"
         
-    writer = Logger(log_dir=dir_name)
+    writer = Logger(log_dir=dir_name, separator="\n")
     
     writer.add("Description", "Number of epochs : " + str(n_epochs) + "\n" +
                     "Size of training dataset : " + str(len(data_loader)) + "\n" +

@@ -7,6 +7,8 @@ class Logger:
     def __init__(self, log_dir:str='Logs', separator:str="\n") -> None:
         self.log_dir = log_dir
         self.separator = separator
+        # create the plots directory in the log directory
+        os.makedirs("{}/plots".format(log_dir), exist_ok=True)
     
     def add(self, file:str, message:any) -> None:
         """
