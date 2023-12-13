@@ -21,7 +21,6 @@ def train_loop(
     data_loader:torch.utils.data.DataLoader,
     log_directory:str = "Logs",
     plot_images:bool = True,
-    write_logs_every:int = 5,
     ) -> None:
     """
     Train loop for the autoencoder and the discriminator
@@ -49,7 +48,7 @@ def train_loop(
         
         current_time = time.time() - start_time
         
-        print("Epoch : " + str(epoch) + " / " + str(n_epochs) + time.strftime(" (%H:%M:%S)", time.gmtime(current_time)))
+        print("Epoch : " + str(epoch + 1) + " / " + str(n_epochs) + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start_time)))
         
         pbar = tqdm.tqdm(enumerate(data_loader), total=len(data_loader))
         
@@ -94,9 +93,6 @@ def train_loop(
             writer.add("Reconstruction_objective", reconstruction_objective(images, decoded).item())
             writer.add("Adversarial_objective", loss_autoencoder.item())
             writer.add("Discriminator_objective", loss_discriminator.item())
-            
-            if batch_nb % write_logs_every == 0:
-                writer.write()
             
             
         # Plot and save the images and the decoded images to compare
