@@ -18,7 +18,7 @@ class Discriminator(torch.nn.Module):
         # first convert x to float
         input = x.float()
         
-        if display:
+        if display: 
             print("input", input.shape, input.dtype)
             
         return self.discriminator(input)

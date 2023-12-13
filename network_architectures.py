@@ -13,7 +13,6 @@ N_ATTRIBUTES = 40
 # each layer of the encoder divides the size of its input by 2. We use leaky-ReLUs with a slope of 0.2
 # in the encoder, and simple ReLUs in the decoder.
 
-
 #%% Encoder
 # The encoder consists of the following 7 layers:
 # C16 − C32 − C64 − C128 − C256 − C512 − C512

@@ -34,8 +34,9 @@ class AutoEncoder(torch.nn.Module):
         
         # decode latent_y to output (image)
         decoded = self.decoder(latent_y)
+        decoded = decoded/max(decoded.flatten())    #normalize the output
         
-        if display:
+        if display: 
             print("input_x", input_x.shape, input_x.dtype)
             print("input_y", input_y.shape, input_y.dtype)
             print("latent", latent.shape, latent.dtype)

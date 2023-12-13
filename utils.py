@@ -20,7 +20,7 @@ def transform_img_for_celeba(image:torch.tensor, target_size:int=256) -> torch.t
     image = crop(image, 40, 0, IMG_SIZE[0], IMG_SIZE[0])
     image = resize(image, (target_size, target_size), antialias=True)
     # normalize the images between 0 and 1 (instead of 0 and 255) to avoid overflow in the loss function:
-    image = image.float() / 255.
+    image = image.float() / 255.    # normalize the input
     return image
 
 
@@ -69,7 +69,7 @@ decoded, y_pred = inference(
     discriminator=Discriminator(),
     scaled_image=torch.rand((1, 3, 256, 256)),
     attributes=torch.rand((1, 40)),
-    device=torch.device('cpu')
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 )
 assert decoded.shape == (1, 3, 256, 256), "The inference function does not work properly. Shape issue for decoded"
 assert y_pred.shape == (1, 40), "The inference function does not work properly. Shape issue for y_pred."
