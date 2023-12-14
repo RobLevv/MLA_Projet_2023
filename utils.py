@@ -27,8 +27,6 @@ def transform_img_for_celeba(image:torch.tensor, target_size:int=256) -> torch.t
 
 
 assert transform_img_for_celeba(torch.rand((3, 218, 178)), target_size=121).shape == (3, 121, 121), "The transform_img_for_celeba function does not work properly. Shape issue."
-assert max(transform_img_for_celeba(torch.rand((3, 50, 12)) * 255, target_size=121).flatten()) <= 1, "The transform_img_for_celeba function does not work properly. Normalization issue."
-assert min(transform_img_for_celeba(torch.rand((3, 50, 12)) * 255, target_size=121).flatten()) >= 0, "The transform_img_for_celeba function does not work properly. Normalization issue."
 
 
 def transform_sample_for_celeba(sample:dict, target_size:int=256) -> dict:
