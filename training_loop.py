@@ -1,7 +1,7 @@
 import torch
 
-from data_loader_V3 import ImgDataset
-from utils import train_validation_test_split
+from ImgDataset import get_celeba_dataset
+from utils import train_validation_test_split, save_plot_images_comparision, save_plot_losses
 from AutoEncoder import AutoEncoder
 from Discriminator import Discriminator
 from Logger import Logger
@@ -19,11 +19,13 @@ def train_loop(
     autoencoder:AutoEncoder, 
     discriminator:Discriminator, 
     data_loader:torch.utils.data.DataLoader,
+    attributes_columns:list,
     log_directory:str = "Logs",
     plot_images:bool = True,
-    ) -> None:
+    ) -> str:
     """
     Train loop for the autoencoder and the discriminator
+    return the name of the log directory
     """
 
     start_time = time.time()
@@ -97,34 +99,15 @@ def train_loop(
             
         # Plot and save the images and the decoded images to compare
         if plot_images:
-            # Get the first batch of the data loader
-            batch = data_loader.__iter__().__next__()
-            len_batch = len(batch['image'])
-            # Get the images and the attributes from the batch
-            images, attributes = batch['image'], batch['attributes']
-            # Send images and attributes to the GPU, model already on GPU after training
-            images, attributes = images.to(device), attributes.to(device)
-            # Generate the latent space and the decoded images (outputs from the autoencoder)
-            latent, decoded = autoencoder(images, attributes)
-            # Send images and decoded back to the CPU
-            images, decoded = images.cpu(), decoded.cpu()           
-            # plot the images and the decoded images to compare
-            fig, ax = plt.subplots(2, len_batch, figsize = (20, 4))
-            for i,image in enumerate(images):
-              image = image.detach().numpy()
-              image = image/np.max(image)
-              ax[0,i].imshow(np.transpose(image, (1,2,0)))
-              ax[0,i].axis('off')
-              ax[0,i].set_title('Original')
-            for i,image in enumerate(decoded):
-              image = image.detach().numpy()
-              image = image/np.max(image)
-              ax[1,i].imshow(np.transpose(image, (1,2,0)))
-              ax[1,i].axis('off')
-              ax[1,i].set_title('Decoded')
-            plt.tight_layout()
-            plt.savefig(dir_name + "/plots/epoch_" + str(epoch) + ".png")
-            plt.close()
+            
+            save_plot_images_comparision(
+                images = images, 
+                decoded = decoded, 
+                attributes = attributes, 
+                attributes_columns = data_loader.dataset.attributes_df.columns[1:],
+                file_name = dir_name + "/plots/epoch_" + str(epoch) + ".png",
+                nb_images = 10
+                )
         
         epoch_loss /= len(data_loader)
     
@@ -134,6 +117,8 @@ def train_loop(
     writer.add("Description", "End training : "+ str(time.time()) + "\n" +
                     "#"*50 + "\n" +
                     "The training took : " + str(current_time//3600) + " hours, " + str(current_time%3600//60) + " minutes, " + str(round(current_time%60)) + " seconds\n")
+    
+    return dir_name
     
 
 if __name__ == "__main__":
@@ -151,44 +136,35 @@ if __name__ == "__main__":
     # ae.load_state_dict(torch.load("Models/autoencoder_e1.pt", map_location = torch.device('cpu')))
     
     # initialize the dataset and the data loader
-    dataset = ImgDataset(attributes_csv_file = 'data/Anno/list_attr_celeba.txt', img_root_dir = 'data/Img')
-    # data_loader = torch.utils.data.DataLoader(dataset, batch_size = 32, shuffle = True)
-
+    dataset = get_celeba_dataset()
+    
     train_set, validation_set, test_set = train_validation_test_split(dataset, train_split = 0.001, test_split = 0.999, val_split = 0., shuffle = True)
     train_data_loader = torch.utils.data.DataLoader(train_set, batch_size = 15, shuffle = True)
-        
+    
     # train the models
-    train_loop(
+    log_dir_name = train_loop(
         n_epochs = 7, 
         device = GPU, 
         autoencoder = ae, 
         discriminator = dis, 
         data_loader = train_data_loader,
-        log_directory = "Logs"
+        log_directory = "Logs",
+        attributes_columns=dataset.attributes_df.columns[1:]
         )
 
     # save the model
-    torch.save(ae.state_dict(), "Models/autoencoder.pt")
-    # torch.save(dis.state_dict(), "Models/discriminator.pt")
+    torch.save(ae.state_dict(), log_dir_name + "/autoencoder.pt")
+    torch.save(dis.state_dict(), log_dir_name + "/discriminator.pt")
     
     # plot the losses
-    with open("Logs/log.txt", "r") as f:
-        lines = f.readlines()
-        ae_losses = []
-        dis_losses = []
-        for line in lines:
-            if "loss_autoencoder" in line:
-                ae_losses.append(float(line.split()[2]))
-            if "loss_discriminator" in line:
-                dis_losses.append(float(line.split()[5]))
-    plt.figure(figsize = (20, 10))
-    plt.subplot(1, 2, 1)
-    plt.plot(ae_losses, label = "autoencoder loss")
-    plt.xlabel("batch index")
-    plt.ylabel("loss")
-    plt.subplot(1, 2, 2)
-    plt.plot(dis_losses, label = "discriminator loss")
-    plt.xlabel("batch index")
-    plt.ylabel("loss")
-    plt.legend()
-    plt.savefig("Logs/losses.png")
+    save_plot_losses(
+        list_files=[
+            log_dir_name + "/Reconstruction_objective.txt",
+            log_dir_name + "/Adversarial_objective.txt",
+            log_dir_name + "/Discriminator_objective.txt"
+            ],
+        file_name=log_dir_name + "/plots/losses.png",
+        xlabel="batch",
+        ylabel="loss",
+        title="Losses for " + log_dir_name.split("/")[-1],
+    )
