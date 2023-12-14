@@ -56,13 +56,9 @@ def save_plot_images_comparision(
     fig, ax = plt.subplots(3, nb_images, figsize = (20, 6))
     
     for i in range(nb_images):
-        image = images[i].cpu()
-        image = image.detach().numpy()
-        decoded_image = decoded[i].cpu()
-        decoded_image = decoded_image.detach().numpy()
-        decoded_image = decoded_image/np.max(decoded_image)
-        attributes_image = attributes[i].cpu()
-        attributes_image = attributes_image.detach().numpy()
+        image = images[i].detach().cpu().numpy()
+        decoded_image = decoded[i].detach().cpu().numpy() / np.max(decoded[i].detach().cpu().numpy())
+        attributes_image = attributes_image.detach().cpu().numpy()
         
         # first raw: original image
         ax[0,i].imshow(np.transpose(image, (1,2,0)))
