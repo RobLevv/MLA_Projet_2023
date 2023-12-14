@@ -10,6 +10,7 @@ from torchvision.transforms.functional import crop, resize
 
 # %% IMAGE PROCESSING FUNCTIONS
 
+
 def transform_img_for_celeba(image:torch.tensor, target_size:int=256) -> torch.tensor:
     """
     Crop the image to make it square and resize it to (target_size, target_size).
@@ -20,8 +21,8 @@ def transform_img_for_celeba(image:torch.tensor, target_size:int=256) -> torch.t
     # Crop the image to make it square
     image = crop(image, 40, 0, IMG_SIZE[0], IMG_SIZE[0])
     image = resize(image, (target_size, target_size), antialias=True)
-    # normalize the images between 0 and 1 (instead of 0 and 255) to avoid overflow in the loss function:
-    image = image.float() / 255.    # normalize the input
+    # since this function is called when building the dataset, we don't need to normalize the images
+    # when read_image is called, the images are tensor with values between 0 and 255 even if normalized between 0 and 1 previously
     return image
 
 

@@ -53,7 +53,7 @@ def train_loop(
         
         current_time = time.time() - start_time
         
-        print("\nEpoch : " + str(epoch + 1) + "/" + str(n_epochs) + " time: " + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start_time)))
+        print("\nEpoch : " + str(epoch + 1) + "/" + str(n_epochs) + " time: " + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time())))
         
         pbar = tqdm.tqdm(enumerate(data_loader), total=len(data_loader), ncols=100)
         
@@ -66,7 +66,10 @@ def train_loop(
             
             # send model, images and attributes to the device ( GPU if available )
             images, attributes = images.to(device), attributes.to(device)    
-             
+            
+            # normalize the images between 0 and 1 (instead of 0 and 255) to avoid overflow in the loss function
+            images = images.float() / 255.
+            
             # Generate the latent space and the decoded images (outputs from the autoencoder)
             latent, decoded = autoencoder(images, attributes)
             
