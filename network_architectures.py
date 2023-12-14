@@ -98,7 +98,7 @@ decoder_layers = Sequential(
     BatchNorm2d(3),
     ReLU(inplace=True),
     
-    # Activation function
+    # Since the output is an image, we use a sigmoid activation function
     Sigmoid()
 )
 
