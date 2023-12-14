@@ -1,5 +1,6 @@
 .ipynb_checkpoints/*
 data/Img/*
+data/Img_processed/*
 __pycache__/*
 Logs/*
 ```

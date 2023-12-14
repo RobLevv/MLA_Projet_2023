@@ -98,7 +98,7 @@ if __name__ == '__main__':
                 discriminator=discriminator,
                 scaled_image=scaled_image,
                 attributes=new_attributes,
-                device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+                device = device
                 )
             
             decoded = decoded.squeeze().permute(1, 2, 0).cpu().detach().numpy()

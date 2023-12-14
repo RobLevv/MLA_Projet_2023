@@ -129,13 +129,15 @@ if __name__ == "__main__":
     # initialize the gpu if available as material acceleration
     GPU = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
+    print(f"Using device: {GPU}")
+    
     # initialize the models
     ae = AutoEncoder()
     dis = Discriminator()
     
     ae.to(GPU)
     dis.to(GPU)
-
+    
     # load model
     # ae.load_state_dict(torch.load("Models/autoencoder_allnight.pt"))
     # dis.load_state_dict(torch.load("Models/discriminator_allnight.pt"))

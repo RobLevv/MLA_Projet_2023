@@ -190,3 +190,34 @@ def train_validation_test_split(
 #     )
 #     plt.title("Partition Distribution")
 #     plt.show()
+
+
+def build_Img_processed_folder():
+    """
+    Takes Everything in data/Img and apply transform_img_for_celeba to it.
+    """
+    import os
+    import shutil
+    from PIL import Image
+    import tqdm
+    
+    # create the folder if it does not exist
+    if not os.path.exists('data/Img_processed'):
+        os.makedirs('data/Img_processed')
+    
+    # remove all the files in the folder
+    for file in os.listdir('data/Img_processed'):
+        os.remove('data/Img_processed/' + file)
+    
+    # copy all the files from data/Img to data/Img_processed
+    for file in os.listdir('data/Img'):
+        shutil.copy('data/Img/' + file, 'data/Img_processed/' + file)
+    
+    # apply the transformation to all the files
+    for file in tqdm.tqdm(os.listdir('data/Img_processed'), desc='Processing Images', unit='image'):
+        img = Image.open('data/Img_processed/' + file)
+        img = transform_img_for_celeba(img)
+        img.save('data/Img_processed/' + file)
+
+if __name__ == "__main__" :
+    build_Img_processed_folder()
