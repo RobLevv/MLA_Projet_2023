@@ -20,7 +20,7 @@ class ImgDataset(torch.utils.data.Dataset):
     def __init__(self, 
                  attributes_csv_file:str, 
                  img_root_dir:str, 
-                 transform:function):
+                 transform):
         """
         Arguments:
             csv_file (string): Path to the csv file with attributes.
