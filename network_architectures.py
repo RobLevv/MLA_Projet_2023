@@ -2,7 +2,7 @@
 # weirdly, we can't run the 3 networks together because of memory issues, so we have to run them separately.
 
 #%% IMPORTS
-from torch.nn import Sequential, Conv2d, ConvTranspose2d, BatchNorm2d, ReLU, LeakyReLU, Flatten, Linear, Sigmoid
+from torch.nn import Sequential, Conv2d, ConvTranspose2d, BatchNorm2d, ReLU, LeakyReLU, Flatten, Linear, Sigmoid, Dropout
 
 IMG_SIZE = (3, 256, 256)
 N_ATTRIBUTES = 40
@@ -98,8 +98,7 @@ decoder_layers = Sequential(
     BatchNorm2d(3),
     ReLU(inplace=True),
     
-    # Since the output is an image, we use a sigmoid activation function
-    Sigmoid()
+    
 )
 
 if __name__ == "__main__":
@@ -119,12 +118,18 @@ discriminator_layers = Sequential(
     BatchNorm2d(512),
     LeakyReLU(0.2, inplace=True),
     
+    # Dropout layer with probability 0.2
+    Dropout(0.2),
+    
     # Flatten the output for fully-connected layers
     Flatten(),
 
     # Fully-connected layer with size 512
     Linear(512*2*2, 512),
     LeakyReLU(0.2, inplace=True),
+    
+    # Dropout layer with probability 0.2
+    Dropout(0.2),
 
     # Fully-connected layer with size n (assuming n is the number of attributes)
     Linear(512, N_ATTRIBUTES),
