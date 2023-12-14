@@ -42,6 +42,9 @@ def train_loop(
                     "Start training : "+ str(start_time) + "\n" +
                     "#"*50 + "\n")
     
+    writer.add("Description", "Autoencoder : \n" + str(autoencoder) + "\n")
+    writer.add("Description", "Discriminator : \n" + str(discriminator) + "\n")
+    
     # loop over the epochs
     for epoch in range(n_epochs):
         
