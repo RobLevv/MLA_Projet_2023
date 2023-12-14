@@ -104,7 +104,7 @@ def train_loop(
                 images = images, 
                 decoded = decoded, 
                 attributes = attributes, 
-                attributes_columns = data_loader.dataset.attributes_df.columns[1:],
+                attributes_columns = attributes_columns,
                 file_name = dir_name + "/plots/epoch_" + str(epoch) + ".png",
                 nb_images = 10
                 )
