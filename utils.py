@@ -53,6 +53,10 @@ def save_plot_images_comparision(
     """
     Plot the images and the decoded images to compare.
     """
+    
+    if images.shape[0] < nb_images:
+        nb_images = images.shape[0]
+    
     fig, ax = plt.subplots(3, nb_images, figsize = (20, 6))
     
     for i in range(nb_images):
