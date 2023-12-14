@@ -192,32 +192,30 @@ def train_validation_test_split(
 #     plt.show()
 
 
-def build_Img_processed_folder():
+def build_Img_processed_folder(
+    origin_folder:str='data/Img',
+    target_folder:str='data/Img_processed'
+    ):
     """
     Takes Everything in data/Img and apply transform_img_for_celeba to it.
     """
     import os
-    import shutil
-    from PIL import Image
+    from torchvision.io import read_image
+    from torchvision.utils import save_image
     import tqdm
     
     # create the folder if it does not exist
-    if not os.path.exists('data/Img_processed'):
-        os.makedirs('data/Img_processed')
+    if not os.path.exists(target_folder):
+        os.makedirs(target_folder)
     
-    # remove all the files in the folder
-    for file in os.listdir('data/Img_processed'):
-        os.remove('data/Img_processed/' + file)
-    
-    # copy all the files from data/Img to data/Img_processed
-    for file in os.listdir('data/Img'):
-        shutil.copy('data/Img/' + file, 'data/Img_processed/' + file)
+    # files if .jpg or .png
+    files = [file for file in os.listdir(origin_folder) if file.endswith('.jpg') or file.endswith('.png')]
     
     # apply the transformation to all the files
-    for file in tqdm.tqdm(os.listdir('data/Img_processed'), desc='Processing Images', unit='image'):
-        img = Image.open('data/Img_processed/' + file)
+    for file in tqdm.tqdm(files, desc="Transforming images", unit="image"):
+        img = read_image(origin_folder + '/' + file)
         img = transform_img_for_celeba(img)
-        img.save('data/Img_processed/' + file)
+        save_image(img, target_folder + '/' + file)
 
 if __name__ == "__main__" :
     build_Img_processed_folder()
