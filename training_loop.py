@@ -52,7 +52,7 @@ def train_loop(
         
         print("Epoch : " + str(epoch + 1) + "/" + str(n_epochs) + " time: " + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start_time)))
         
-        pbar = tqdm.tqdm(enumerate(data_loader), total=len(data_loader), ncols=10)
+        pbar = tqdm.tqdm(enumerate(data_loader), total=len(data_loader), ncols=100)
         
         for batch_nb, batch in enumerate(data_loader):
             
@@ -143,7 +143,7 @@ if __name__ == "__main__":
     
     # train the models
     log_dir_name = train_loop(
-        n_epochs = 7, 
+        n_epochs = 5, 
         device = GPU, 
         autoencoder = ae, 
         discriminator = dis, 
