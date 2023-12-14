@@ -21,43 +21,36 @@ encoder_layers = Sequential(
     Conv2d(in_channels=IMG_SIZE[0], out_channels=16, kernel_size=4, stride=2, padding=1),
     BatchNorm2d(16),
     LeakyReLU(0.2, inplace=True),
-    Dropout(0.2),
 
     # C32: Convolutional layer with 32 filters
     Conv2d(in_channels=16, out_channels=32, kernel_size=4, stride=2, padding=1),
     BatchNorm2d(32),
     LeakyReLU(0.2, inplace=True),
-    Dropout(0.2),
 
     # C64: Convolutional layer with 64 filters
     Conv2d(in_channels=32, out_channels=64, kernel_size=4, stride=2, padding=1),
     BatchNorm2d(64),
     LeakyReLU(0.2, inplace=True),
-    Dropout(0.2),
 
     # C128: Convolutional layer with 128 filters
     Conv2d(in_channels=64, out_channels=128, kernel_size=4, stride=2, padding=1),
     BatchNorm2d(128),
     LeakyReLU(0.2, inplace=True),
-    Dropout(0.2),
 
     # C256: Convolutional layer with 256 filters
     Conv2d(in_channels=128, out_channels=256, kernel_size=4, stride=2, padding=1),
     BatchNorm2d(256),
     LeakyReLU(0.2, inplace=True),
-    Dropout(0.2),
 
     # C512: Convolutional layer with 512 filters
     Conv2d(in_channels=256, out_channels=512, kernel_size=4, stride=2, padding=1),
     BatchNorm2d(512),
     LeakyReLU(0.2, inplace=True),
-    Dropout(0.2),
 
     # C512: Convolutional layer with 512 filters
     Conv2d(in_channels=512, out_channels=512, kernel_size=4, stride=2, padding=1),
     BatchNorm2d(512),
-    LeakyReLU(0.2, inplace=True),
-    Dropout(0.2)
+    LeakyReLU(0.2, inplace=True)
 )
 
 if __name__ == "__main__":
