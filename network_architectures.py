@@ -97,6 +97,9 @@ decoder_layers = Sequential(
     ConvTranspose2d(in_channels=32 +  N_ATTRIBUTES, out_channels=3, kernel_size=4, stride=2, padding=1),
     BatchNorm2d(3),
     ReLU(inplace=True),
+    
+    # Activation function
+    Sigmoid()
 )
 
 if __name__ == "__main__":
