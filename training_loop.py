@@ -50,7 +50,7 @@ def train_loop(
         
         current_time = time.time() - start_time
         
-        print("Epoch : " + str(epoch + 1) + "/" + str(n_epochs) + " time: " + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start_time)))
+        print("\nEpoch : " + str(epoch + 1) + "/" + str(n_epochs) + " time: " + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(start_time)))
         
         pbar = tqdm.tqdm(enumerate(data_loader), total=len(data_loader), ncols=100)
         
@@ -110,6 +110,7 @@ def train_loop(
                 )
         
         epoch_loss /= len(data_loader)
+        pbar.close()
     
     current_time = time.time() - start_time
     
