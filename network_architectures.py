@@ -91,7 +91,7 @@ decoder_layers = Sequential(
     ConvTranspose2d(in_channels=128 +  N_ATTRIBUTES, out_channels=64 + N_ATTRIBUTES, kernel_size=4, stride=2, padding=1),
     BatchNorm2d(64 + N_ATTRIBUTES),
     ReLU(inplace=True),
-    *Dropout(0.2),
+    Dropout(0.2),
 
     # C32+2n: Transposed convolutional layer with 32 + 2 * N_ATTRIBUTES filters
     ConvTranspose2d(in_channels=64 +  N_ATTRIBUTES, out_channels=32 + N_ATTRIBUTES, kernel_size=4, stride=2, padding=1),
