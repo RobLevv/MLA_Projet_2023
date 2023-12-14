@@ -137,7 +137,8 @@ if __name__ == "__main__":
     dis.to(GPU)
 
     # load model
-    # ae.load_state_dict(torch.load("Models/autoencoder_e1.pt", map_location = torch.device('cpu')))
+    # ae.load_state_dict(torch.load("Models/autoencoder_allnight.pt"))
+    # dis.load_state_dict(torch.load("Models/discriminator_allnight.pt"))
     
     # initialize the dataset and the data loader
     dataset = get_celeba_dataset()
