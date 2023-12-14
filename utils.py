@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import matplotlib.pyplot as plt
 
 from AutoEncoder import AutoEncoder
 from Discriminator import Discriminator
@@ -39,40 +40,80 @@ def transform_sample_for_celeba(sample:dict, target_size:int=256) -> dict:
 assert transform_sample_for_celeba({'image': torch.rand((3, 218, 178)), 'attributes': torch.rand(40), 'image_name': 'test'}).keys() == {'image', 'attributes', 'image_name'}, "The transform_sample_for_celeba function does not work properly. Keys issue."
 
 
-# %% INFERENCE FUNCTIONS
+# %% PLOT FUNCTIONS
 
-def inference(
-    autoencoder:AutoEncoder,
-    discriminator:Discriminator,
-    scaled_image:torch.tensor,
+def save_plot_images_comparision(
+    images:torch.tensor,
+    decoded:torch.tensor,
     attributes:torch.tensor,
-    device:torch.device
-    ) -> torch.tensor:
+    attributes_columns:list,
+    file_name:str,
+    nb_images:int=10
+    ) -> None:
     """
-    Inference function for the autoencoder and the discriminator
+    Plot the images and the decoded images to compare.
     """
-    # send model, images and attributes to the device ( GPU if available )
-    autoencoder.to(device)
-    discriminator.to(device)
-    scaled_image, attributes = scaled_image.to(device), attributes.to(device)    
+    fig, ax = plt.subplots(3, nb_images, figsize = (20, 6))
+    
+    for i in range(nb_images):
+        image = images[i].detach().numpy()
+        decoded_image = decoded[i].detach().numpy()
+        decoded_image = decoded_image/np.max(decoded_image)
+        attributes_image = attributes[i].detach().numpy()
+        
+        # first raw: original image
+        ax[0,i].imshow(np.transpose(image, (1,2,0)))
+        ax[0,i].axis('off')
+        ax[0,i].set_title('Original')
 
-    # Generate the latent space and the decoded images (outputs from the autoencoder)
-    latent, decoded = autoencoder(scaled_image, attributes)
+        # second raw: attributes
+        text = ""
+        for j, attr in enumerate(attributes_image):
+            if attr == 1:
+                text += attributes_columns[j] + "\n"  
+        ax[1,i].text(0.5, 0.5, text[:-1], horizontalalignment='center', verticalalignment='center', fontsize=8)
+        ax[1,i].axis('off')
+        
+        # third raw: decoded image
+        decoded_image = decoded_image.detach().numpy()
+        ax[2,i].imshow(np.transpose(decoded_image, (1,2,0)))
+        ax[2,i].axis('off')
+        ax[2,i].set_title('Decoded')
+        
+    plt.tight_layout()
+    plt.savefig(file_name)
+    plt.close()
 
-    # Generate the prediction of the discriminator
-    y_pred = discriminator(latent)
+def save_plot_losses(
+    list_files:list,
+    file_name:str,
+    title:str="Training losses",
+    xlabel:str="Batch",
+    ylabel:str="Losses",
+    sep:str='\n',
+    ) -> None:
+    """
+    Plot the losses.
+    """
+    # first read the files to get the losses
+    for i, file in enumerate(list_files):
+        with open(file, 'r') as f:
+            if i == 0:
+                losses = np.array(f.read().split(sep), dtype=float)
+            else:
+                losses = np.vstack((losses, np.array(f.read().split(sep), dtype=float)))
+    
+    # then plot the losses
+    plt.figure(figsize=(20, 10))
+    for i, loss in enumerate(losses):
+        plt.plot(loss, label=list_files[i].split('/')[-1].split('.')[0])
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.legend()
+    plt.savefig(file_name)
+    plt.close()
 
-    return decoded, y_pred
-
-decoded, y_pred = inference(
-    autoencoder=AutoEncoder(),
-    discriminator=Discriminator(),
-    scaled_image=torch.rand((1, 3, 256, 256)),
-    attributes=torch.rand((1, 40)),
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-)
-assert decoded.shape == (1, 3, 256, 256), "The inference function does not work properly. Shape issue for decoded"
-assert y_pred.shape == (1, 40), "The inference function does not work properly. Shape issue for y_pred."
 
 # %% TRAIN VALIDATION TEST SPLIT
 
