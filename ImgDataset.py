@@ -8,10 +8,19 @@ from torchvision.io import read_image
 from utils import transform_sample_for_celeba
 
 
+def get_celeba_dataset():
+    return ImgDataset(attributes_csv_file='data/Anno/list_attr_celeba.txt', img_root_dir='data/Img', transform=transform_sample_for_celeba)
+
+def get_celeba_dataset_lite():
+    return ImgDataset(attributes_csv_file='data/Anno/list_attr_celeba_lite.txt', img_root_dir='data/Img_lite', transform=transform_sample_for_celeba)
+
 class ImgDataset(torch.utils.data.Dataset):
     """General Image dataset."""
 
-    def __init__(self, attributes_csv_file, img_root_dir, transform=transform_sample_for_celeba):
+    def __init__(self, 
+                 attributes_csv_file:str, 
+                 img_root_dir:str, 
+                 transform:function):
         """
         Arguments:
             csv_file (string): Path to the csv file with attributes.
@@ -58,7 +67,7 @@ if __name__ == "__main__":
     
     print("DATASET TEST\n")
     
-    dataset = ImgDataset(attributes_csv_file='data/Anno/list_attr_celeba.txt', img_root_dir='data/Img')
+    dataset = get_celeba_dataset()
 
     print(len(dataset))
     
