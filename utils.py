@@ -100,10 +100,10 @@ def save_plot_losses(
     # first read the files to get the losses
     for i, file in enumerate(list_files):
         with open(file, 'r') as f:
-            lines = f.readlines()
-            losses = []
-            for line in lines:
-                losses.append([float(loss) for loss in line.split(sep)])
+            if i == 0:
+                losses = np.array(f.read().split(sep)[:-1], dtype=float)
+            else:
+                losses = np.vstack((losses, np.array(f.read().split(sep)[:-1], dtype=float)))
     
     # then plot the losses
     plt.figure(figsize=(20, 10))
