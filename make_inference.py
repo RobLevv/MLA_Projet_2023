@@ -43,6 +43,7 @@ if __name__ == '__main__':
     from ImgDataset import get_celeba_dataset
     from torch.utils.data import DataLoader
     import matplotlib.pyplot as plt
+    import numpy as np
     
     # %% DATA LOADING
     dataset = get_celeba_dataset()
@@ -50,49 +51,67 @@ if __name__ == '__main__':
     
     # %% LOAD MODELS
     
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    
     autoencoder = AutoEncoder()
-    autoencoder.load_state_dict(torch.load("Models/autoencoder.pt"))
+    autoencoder.load_state_dict(torch.load("Models/autoencoder_2023_12_14_11-46-38.pt", map_location=device))
     
     discriminator = Discriminator()
-    discriminator.load_state_dict(torch.load("Models/discriminator.pt"))
+    discriminator.load_state_dict(torch.load("Models/discriminator_2023_12_14_11-46-38.pt", map_location=device))
     
-    # %% INFERENCE
+    # %% GET AN IMAGE AND ITS ATTRIBUTES
     for batch in data_loader:
         scaled_image, attributes = batch['image'], batch['attributes']
         break
-        
-    # same as attributes but one attribute is changed randomly
+    
+    # %% N ATTRIBUTES TO BE CHANGED (between 0 and 1)
+    N = 5
+    step = 0.2
+    nb_steps = int(1//step) + 1
+    assert N <= 40, "N must be smaller than 40"
+    random_index = torch.randint(0, 40, (N,))
+    
     new_attributes = attributes.clone()
-    random_index = torch.randint(0, len(new_attributes[0]), (1,)).item()
-    new_attributes[0][random_index] = 1 - new_attributes[0][random_index]
     
+    changed_attributes_names = dataset.attributes_df.columns[1:][random_index]
     
-    decoded, y_pred = inference(
-        autoencoder=autoencoder,
-        discriminator=discriminator,
-        scaled_image=scaled_image,
-        attributes=attributes,
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    )
+    # %% INFERENCE
     
-    # %% PLOT
-    # let's plot the original image, the decoded image and the attributes
-    fig, ax = plt.subplots(1, 3, figsize = (20, 6))
-    ax[0].imshow(scaled_image[0].permute(1, 2, 0))
-    ax[0].axis('off')
-    ax[0].set_title("Original image", fontsize=8)
+    fig, ax = plt.subplots(N, nb_steps + 1, figsize=(1.7*(nb_steps), 4*N))    
     
-    ax[1].imshow(decoded[0].detach().permute(1, 2, 0))
-    ax[1].axis('off')
-    ax[1].set_title("Decoded image", fontsize=8)
+    for i in range(N):
+        
+        ax[i, 0].imshow(scaled_image.squeeze().permute(1, 2, 0).cpu().detach().numpy())
+        ax[i, 0].axis('off')
+        ax[i, 0].set_title("Original image")
+        
+        for j in range(nb_steps):
+            # change the attributes of the image step by step going from 0 to 1 or from 1 to 0 depending on the value of the attribute
+            if attributes[0, random_index[i]] == 0:
+                new_attributes[0, random_index[i]] = step * (j + 1)
+            else:
+                new_attributes[0, random_index[i]] = 1 - step * (j + 1)
+            
+            # make inference
+            decoded, y_pred = inference(
+                autoencoder=autoencoder,
+                discriminator=discriminator,
+                scaled_image=scaled_image,
+                attributes=new_attributes,
+                device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+                )
+            
+            decoded = decoded.squeeze().permute(1, 2, 0).cpu().detach().numpy()
+            
+            ax[i, j+1].imshow(decoded / np.max(decoded))
+            ax[i, j+1].axis('off')
+            ax[i, j+1].set_title("{} : {}".format(changed_attributes_names[i], round(new_attributes[0, random_index[i]].item(), 2)))
     
-    text = ""
-    for i, attr in enumerate(attributes[0]):
-        if attr == 1:
-            text += dataset.attributes_df.columns[i+1] + "\n"
-    ax[2].text(0.5, 0.5, text[:-1], horizontalalignment='center', verticalalignment='center', fontsize=8)
-    ax[2].axis('off')
-    
-    plt.tight_layout()
+    fig.suptitle("Attributes changed step by step", fontsize=16)
     plt.show()
+    
+    print("End of the inference")
+        
+        
+       
     
