@@ -9,10 +9,10 @@ from utils import transform_sample_for_celeba
 
 
 def get_celeba_dataset():
-    return ImgDataset(attributes_csv_file='data/Anno/list_attr_celeba.txt', img_root_dir='data/Img', transform=transform_sample_for_celeba)
+    return ImgDataset(attributes_csv_file='data/Anno/list_attr_celeba.txt', img_root_dir='data/Img_processed', transform=None)
 
 def get_celeba_dataset_lite():
-    return ImgDataset(attributes_csv_file='data/Anno/list_attr_celeba_lite.txt', img_root_dir='data/Img_lite', transform=transform_sample_for_celeba)
+    return ImgDataset(attributes_csv_file='data/Anno/list_attr_celeba_lite.txt', img_root_dir='data/Img_lite_processed', transform=None)
 
 class ImgDataset(torch.utils.data.Dataset):
     """General Image dataset."""
