@@ -34,7 +34,6 @@ class AutoEncoder(torch.nn.Module):
         
         # decode latent_y to output (image)
         decoded = self.decoder(latent_y)
-        # decoded = torch.sigmoid(decoded)    #normalize the output
         
         if display: 
             print("input_x", input_x.shape, input_x.dtype)
@@ -51,4 +50,3 @@ latent, decoded = AutoEncoder()(torch.rand((1, 3, 256, 256)), torch.rand((1, 40)
 
 assert latent.shape == (1, 512, 2, 2), "The inference function does not work properly. Shape issue for latent"
 assert decoded.shape == (1, 3, 256, 256), "The inference function does not work properly. Shape issue for decoded"
-# assert max(decoded.flatten()) <= 1 and min(decoded.flatten()) >= 0, "The inference function does not work properly. Normalization issue. for decoded (min = {}, max = {})".format(min(decoded.flatten()), max(decoded.flatten()))
