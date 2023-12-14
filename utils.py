@@ -58,7 +58,7 @@ def save_plot_images_comparision(
     for i in range(nb_images):
         image = images[i].detach().cpu().numpy()
         decoded_image = decoded[i].detach().cpu().numpy() / np.max(decoded[i].detach().cpu().numpy())
-        attributes_image = attributes_image.detach().cpu().numpy()
+        attributes_image = attributes[i].detach().cpu().numpy()
         
         # first raw: original image
         ax[0,i].imshow(np.transpose(image, (1,2,0)))
