@@ -66,7 +66,7 @@ if __name__ == '__main__':
     
     # %% N ATTRIBUTES TO BE CHANGED (between 0 and 1)
     N = 5
-    step = 0.2
+    step = 0.25
     nb_steps = int(1//step) + 1
     assert N <= 40, "N must be smaller than 40"
     random_index = torch.randint(0, 40, (N,))
@@ -88,9 +88,9 @@ if __name__ == '__main__':
         for j in range(nb_steps):
             # change the attributes of the image step by step going from 0 to 1 or from 1 to 0 depending on the value of the attribute
             if attributes[0, random_index[i]] == 0:
-                new_attributes[0, random_index[i]] = step * (j + 1)
+                new_attributes[0, random_index[i]] = step * j
             else:
-                new_attributes[0, random_index[i]] = 1 - step * (j + 1)
+                new_attributes[0, random_index[i]] = 1 - step * j
             
             # make inference
             decoded, y_pred = inference(
@@ -111,6 +111,47 @@ if __name__ == '__main__':
     plt.show()
     
     print("End of the inference")
+    
+    
+    # plot image, decoded and decoded with oposite attributes
+    
+    fig, ax = plt.subplots(1, 3, figsize=(10, 3))
+    
+    ax[0].imshow(scaled_image.squeeze().permute(1, 2, 0).cpu().detach().numpy())
+    ax[0].axis('off')
+    ax[0].set_title("Original image")
+    
+    decoded, y_pred = inference(
+        autoencoder=autoencoder,
+        discriminator=discriminator,
+        scaled_image=scaled_image,
+        attributes=attributes,
+        device = device
+        )
+    
+    decoded = decoded.squeeze().permute(1, 2, 0).cpu().detach().numpy()
+    
+    ax[1].imshow(decoded / np.max(decoded))
+    ax[1].axis('off')
+    ax[1].set_title("Decoded image")
+    
+    decoded, y_pred = inference(
+        autoencoder=autoencoder,
+        discriminator=discriminator,
+        scaled_image=scaled_image,
+        attributes=1 - attributes,
+        device = device
+        )
+    
+    decoded = decoded.squeeze().permute(1, 2, 0).cpu().detach().numpy()
+    
+    ax[2].imshow(decoded / np.max(decoded))
+    ax[2].axis('off')
+    ax[2].set_title("Decoded image with oposite attributes")
+    
+    fig.suptitle("Original image, decoded image and decoded image with oposite attributes", fontsize=16)
+    plt.show()
+    
         
         
        
