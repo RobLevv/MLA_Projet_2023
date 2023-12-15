@@ -32,7 +32,7 @@ class ImgDataset(torch.utils.data.Dataset):
         self.root_dir = img_root_dir
         self.transform = transform
         
-        assert len(self.attributes_df) == len(os.listdir(self.root_dir)), "The number of images and the number of attributes do not match."
+        assert len(self.attributes_df) == len(os.listdir(self.root_dir)), "The number of images and the number of attributes do not match. {} images and {} attributes".format(len(self.attributes_df), len(os.listdir(self.root_dir)))
 
     def __len__(self):
         return len(self.attributes_df)
