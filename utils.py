@@ -23,7 +23,7 @@ def transform_img_for_celeba(image:torch.tensor, target_size:int=256) -> torch.t
     image = resize(image, (target_size, target_size), antialias=True)
     # since this function is called when building the dataset, we don't need to normalize the images
     # when read_image is called, the images are tensor with values between 0 and 255 even if normalized between 0 and 1 previously
-    return image
+    return image.float()
 
 
 assert transform_img_for_celeba(torch.rand((3, 218, 178)), target_size=121).shape == (3, 121, 121), "The transform_img_for_celeba function does not work properly. Shape issue."
@@ -195,8 +195,8 @@ def train_validation_test_split(
 
 
 def build_Img_processed_folder(
-    origin_folder:str='data/Img',
-    target_folder:str='data/Img_processed'
+    origin_folder:str='data/Img_lite',
+    target_folder:str='data/Img_processed_lite'
     ):
     """
     Takes Everything in data/Img and apply transform_img_for_celeba to it.
@@ -220,4 +220,4 @@ def build_Img_processed_folder(
         save_image(img, target_folder + '/' + file)
 
 if __name__ == "__main__" :
-    build_Img_processed_folder()
+    build_Img_processed_folder(origin_folder='data/Img_lite',target_folder='data/Img_processed/lite')

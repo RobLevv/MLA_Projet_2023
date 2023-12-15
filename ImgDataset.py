@@ -12,7 +12,7 @@ def get_celeba_dataset():
     return ImgDataset(attributes_csv_file='data/Anno/list_attr_celeba.txt', img_root_dir='data/Img_processed', transform=None)
 
 def get_celeba_dataset_lite():
-    return ImgDataset(attributes_csv_file='data/Anno/list_attr_celeba_lite.txt', img_root_dir='data/Img_lite_processed', transform=None)
+    return ImgDataset(attributes_csv_file='data/Anno/list_attr_celeba_lite.txt', img_root_dir='data/Img_processed_lite', transform=None)
 
 class ImgDataset(torch.utils.data.Dataset):
     """General Image dataset."""
