@@ -50,8 +50,8 @@ if __name__ == '__main__':
     if False:
         dataset = get_celeba_dataset()    
     else:        
-        dataset = ImgDataset(attributes_csv_file="Data/Anno/list_attr_etu.txt",
-                             img_root_dir="Data/Img_etu",
+        dataset = ImgDataset(attributes_csv_file="data/Anno/list_attr_etu.txt",
+                             img_root_dir="data/Img_etu",
                              transform=None)
         
     
@@ -124,9 +124,9 @@ if __name__ == '__main__':
             
             ax[i, j+1].imshow(decoded / np.max(decoded))
             ax[i, j+1].axis('off')
-            ax[i, j+1].set_title("{} : {}".format(attr_name, round(new_attributes[0, n_attr].item(), 2)), fontsize=7)
+            ax[i, j+1].set_title(str(round(new_attributes[0, n_attr].item(), 2)), fontsize=7)
     
-    fig.suptitle("Attribute {} : {} from 0 to 1 on {} images".format(n_attr, attr_name, N), fontsize=16)
+    fig.suptitle("Attribute {} : {} from {} to {}".format(n_attr, attr_name, val_min, val_max), fontsize=16)
     plt.show()
     
     print("End of the inference")
