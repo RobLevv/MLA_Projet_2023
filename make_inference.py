@@ -38,8 +38,6 @@ assert y_pred.shape == (1, 40), "The inference function does not work properly. 
 if __name__ == '__main__':
     print("Every assertion test passed")
     
-    print("Let's use the inference function to make inference on a random image from the CelebA dataset")
-    
     from ImgDataset import get_celeba_dataset, ImgDataset
     from utils import transform_img_for_celeba
     from torch.utils.data import DataLoader
@@ -48,11 +46,14 @@ if __name__ == '__main__':
     
     # %% DATA LOADING
     if False:
-        dataset = get_celeba_dataset()    
+        dataset = get_celeba_dataset()
+        print("Let's use the inference function to make inference on a random image from the CelebA dataset") 
     else:        
         dataset = ImgDataset(attributes_csv_file="data/Anno/list_attr_etu.txt",
                              img_root_dir="data/Img_etu",
                              transform=None)
+        
+        print("Let's use the inference function to make inference on a random image from the ETU dataset")
         
     
     data_loader = DataLoader(dataset, batch_size=1, shuffle=True)
@@ -131,7 +132,7 @@ if __name__ == '__main__':
     
     print("End of the inference")
     
-    plt.savefig(directory+"attribute_{}.png".format(n_attr), dpi=300, bbox_inches='tight')
+    plt.savefig(directory+"attribute_{}.png".format(attr_name), dpi=300, bbox_inches='tight')
     
         
         
