@@ -1,11 +1,11 @@
 import torch
 
-from ImgDataset import get_celeba_dataset
-from utils import train_validation_test_split, save_plot_images_comparision, save_plot_losses
-from AutoEncoder import AutoEncoder
-from Discriminator import Discriminator
-from Logger import Logger
-from objectives import adversarial_objective, discriminator_objective, reconstruction_objective
+from src.ImgDataset import get_celeba_dataset
+from src.utils.utils import train_validation_test_split, save_plot_images_comparision, save_plot_losses
+from src.AutoEncoder import AutoEncoder
+from src.Discriminator import Discriminator
+from src.Logger import Logger
+from src.objectives import adversarial_objective, discriminator_objective, reconstruction_objective
 
 import matplotlib.pyplot as plt
 import numpy as np

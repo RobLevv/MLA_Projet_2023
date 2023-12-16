@@ -2,8 +2,8 @@ import numpy as np
 import torch
 import matplotlib.pyplot as plt
 
-from AutoEncoder import AutoEncoder
-from Discriminator import Discriminator
+from src.AutoEncoder import AutoEncoder
+from src.Discriminator import Discriminator
 from torch.utils.data import Dataset, Subset
 from torchvision.transforms.functional import crop, resize
 

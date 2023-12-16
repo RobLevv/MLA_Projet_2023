@@ -5,7 +5,7 @@ import torch
 
 
 from torchvision.io import read_image
-from utils import transform_sample_for_celeba
+from src.utils.utils import transform_sample_for_celeba
 
 
 def get_celeba_dataset():

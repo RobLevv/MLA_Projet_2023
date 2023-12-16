@@ -1,5 +1,5 @@
 import torch
-from network_architectures import discriminator_layers
+from src.network_architectures import discriminator_layers
 
 class Discriminator(torch.nn.Module):
     """

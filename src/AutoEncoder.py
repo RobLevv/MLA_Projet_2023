@@ -1,5 +1,5 @@
 import torch
-from network_architectures import encoder_layers, decoder_layers
+from src.network_architectures import encoder_layers, decoder_layers
 
 class AutoEncoder(torch.nn.Module):
     """
