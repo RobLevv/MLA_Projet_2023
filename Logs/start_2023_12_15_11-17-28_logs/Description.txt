@@ -1,0 +1,78 @@
+Number of epochs : 20
+Size of training dataset : 6754
+Batch size : 15
+Number of images in the training dataset : 101310
+##################################################
+Start training : 1702635448.0920467
+##################################################
+
+Autoencoder : 
+AutoEncoder(
+  (encoder): Sequential(
+    (0): Conv2d(3, 16, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+    (1): BatchNorm2d(16, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (2): LeakyReLU(negative_slope=0.2, inplace=True)
+    (3): Conv2d(16, 32, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+    (4): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (5): LeakyReLU(negative_slope=0.2, inplace=True)
+    (6): Conv2d(32, 64, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+    (7): BatchNorm2d(64, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (8): LeakyReLU(negative_slope=0.2, inplace=True)
+    (9): Conv2d(64, 128, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+    (10): BatchNorm2d(128, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (11): LeakyReLU(negative_slope=0.2, inplace=True)
+    (12): Conv2d(128, 256, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+    (13): BatchNorm2d(256, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (14): LeakyReLU(negative_slope=0.2, inplace=True)
+    (15): Conv2d(256, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+    (16): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (17): LeakyReLU(negative_slope=0.2, inplace=True)
+    (18): Conv2d(512, 512, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+    (19): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (20): LeakyReLU(negative_slope=0.2, inplace=True)
+  )
+  (decoder): Sequential(
+    (0): ConvTranspose2d(552, 552, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+    (1): BatchNorm2d(552, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (2): ReLU(inplace=True)
+    (3): ConvTranspose2d(552, 552, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+    (4): BatchNorm2d(552, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (5): ReLU(inplace=True)
+    (6): ConvTranspose2d(552, 296, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+    (7): BatchNorm2d(296, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (8): ReLU(inplace=True)
+    (9): ConvTranspose2d(296, 168, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+    (10): BatchNorm2d(168, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (11): ReLU(inplace=True)
+    (12): ConvTranspose2d(168, 104, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+    (13): BatchNorm2d(104, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (14): ReLU(inplace=True)
+    (15): ConvTranspose2d(104, 72, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+    (16): BatchNorm2d(72, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (17): ReLU(inplace=True)
+    (18): ConvTranspose2d(72, 3, kernel_size=(4, 4), stride=(2, 2), padding=(1, 1))
+    (19): BatchNorm2d(3, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (20): ReLU(inplace=True)
+  )
+)
+
+Discriminator : 
+Discriminator(
+  (discriminator): Sequential(
+    (0): Conv2d(512, 512, kernel_size=(4, 4), stride=(1, 1), padding=same)
+    (1): BatchNorm2d(512, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+    (2): LeakyReLU(negative_slope=0.2, inplace=True)
+    (3): Dropout(p=0.2, inplace=False)
+    (4): Flatten(start_dim=1, end_dim=-1)
+    (5): Linear(in_features=2048, out_features=512, bias=True)
+    (6): LeakyReLU(negative_slope=0.2, inplace=True)
+    (7): Dropout(p=0.2, inplace=False)
+    (8): Linear(in_features=512, out_features=40, bias=True)
+    (9): Sigmoid()
+  )
+)
+
+End training : 1702674956.1644459
+##################################################
+The training took : 10.0 hours, 58.0 minutes, 28 seconds
+
