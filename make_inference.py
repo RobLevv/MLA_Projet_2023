@@ -74,13 +74,13 @@ if __name__ == '__main__':
         attributes.append(attribute)
     
     # %% 
-    step = 2
-    val_max = 10
-    nb_steps = int(val_max//step) + 1
+    val_min = -5
+    val_max = 5
+    nb_steps = 10
     
     # change the attribute num n_attr
     n_attr = 21
-    attr_name = dataset.attributes_df.columns[n_attr]
+    attr_name = dataset.attributes_df.columns[n_attr+1]
     
     # %% INFERENCE
     
@@ -97,7 +97,7 @@ if __name__ == '__main__':
         for j in range(nb_steps):
             # change the attributes of the image step by step going from 0 to 1 or from 1 to 0 depending on the value of the attribute
             new_attributes = attributes[i].clone()
-            new_attributes[0, n_attr] = step * j
+            new_attributes[0, n_attr] = val_min + j * (val_max - val_min) / nb_steps
             
             # make inference
             decoded, y_pred = inference(
