@@ -10,6 +10,7 @@ if __name__ == '__main__':
     
     import matplotlib.pyplot as plt
     import numpy as np
+    import os
     import torch
     
     from src.AutoEncoder import AutoEncoder
@@ -21,12 +22,13 @@ if __name__ == '__main__':
     # %% DATA LOADING
     if False:
         dataset = get_celeba_dataset()
+        data_name = "CelebA"
         print("Let's use the inference function to make inference on a random image from the CelebA dataset") 
     else:        
         dataset = ImgDataset(attributes_csv_file="data/Anno/list_attr_etu.txt",
                              img_root_dir="data/Img_etu",
                              transform=None)
-        
+        data_name = "Etu"
         print("Let's use the inference function to make inference on a random image from the ETU dataset")
         
     
@@ -51,7 +53,7 @@ if __name__ == '__main__':
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
-    directory = "Logs/start_2023_12_15_11-17-28_logs/"
+    directory = "Logs/start_2023_12_16_13-56-39_logs/"
     
     autoencoder = AutoEncoder()
     autoencoder.load_state_dict(torch.load(directory + "autoencoder.pt", map_location=device))
@@ -60,49 +62,55 @@ if __name__ == '__main__':
     discriminator.load_state_dict(torch.load(directory + "discriminator.pt", map_location=device))
     
     # %% ATTRIBUTE TO CHANGE
-    val_min = -5
-    val_max = 5
+    val_min = -10
+    val_max = 10
     nb_steps = 10
     
     # change the attribute num n_attr
-    n_attr = 21
-    attr_name = dataset.attributes_df.columns[n_attr+1]
+    n_attrs = range(40)
     
-    # %% INFERENCE AND PLOT
-    
-    fig, ax = plt.subplots(N, nb_steps + 1, figsize=(1.7*(nb_steps), 4*N))    
-    
-    for i in range(N):
+    for n_attr in n_attrs:
+
+        attr_name = dataset.attributes_df.columns[n_attr+1]
         
-        scaled_image = images[i].clone()
+        # %% INFERENCE AND PLOT
         
-        ax[i, 0].imshow(scaled_image.squeeze().permute(1, 2, 0).cpu().detach().numpy())
-        ax[i, 0].axis('off')
-        ax[i, 0].set_title("Original image")
+        fig, ax = plt.subplots(N, nb_steps + 1, figsize=(1.7*(nb_steps), 4*N))    
         
-        for j in range(nb_steps):
-            # change the attributes of the image step by step going from 0 to 1 or from 1 to 0 depending on the value of the attribute
-            new_attributes = attributes[i].clone()
-            new_attributes[0, n_attr] = val_min + j * (val_max - val_min) / nb_steps
+        for i in range(N):
             
-            # make inference
-            decoded, y_pred = inference(
-                autoencoder=autoencoder,
-                discriminator=discriminator,
-                scaled_image=scaled_image,
-                attributes=new_attributes,
-                device = device
-                )
+            scaled_image = images[i].clone()
             
-            decoded = decoded.squeeze().permute(1, 2, 0).cpu().detach().numpy()
+            ax[i, 0].imshow(scaled_image.squeeze().permute(1, 2, 0).cpu().detach().numpy())
+            ax[i, 0].axis('off')
+            ax[i, 0].set_title("Original image")
             
-            ax[i, j+1].imshow(decoded / np.max(decoded))
-            ax[i, j+1].axis('off')
-            ax[i, j+1].set_title(str(round(new_attributes[0, n_attr].item(), 2)), fontsize=7)
-    
-    fig.suptitle("Attribute {} : {} from {} to {}".format(n_attr, attr_name, val_min, val_max), fontsize=16)
-    
-    print("End of the inference")
-    
-    plt.savefig(directory+"attribute_{}.png".format(attr_name), dpi=300, bbox_inches='tight')
-    plt.show()
+            for j in range(nb_steps):
+                # change the attributes of the image step by step going from 0 to 1 or from 1 to 0 depending on the value of the attribute
+                new_attributes = attributes[i].clone()
+                new_attributes[0, n_attr] = val_min + j * (val_max - val_min) / nb_steps
+                
+                # make inference
+                decoded, y_pred = inference(
+                    autoencoder=autoencoder,
+                    discriminator=discriminator,
+                    scaled_image=scaled_image,
+                    attributes=new_attributes,
+                    device = device
+                    )
+                
+                decoded = decoded.squeeze().permute(1, 2, 0).cpu().detach().numpy()
+                
+                ax[i, j+1].imshow(decoded / np.max(decoded))
+                ax[i, j+1].axis('off')
+                ax[i, j+1].set_title(str(round(new_attributes[0, n_attr].item(), 2)), fontsize=7)
+        
+        fig.suptitle("Attribute {} : {} from {} to {}".format(n_attr, attr_name, val_min, val_max), fontsize=16)
+        
+        print("End of the inference")
+        
+        if not os.path.exists(directory+"inference/"):
+            os.makedirs(directory+"inference/")
+        
+        plt.savefig(directory+"inference/{}attribute_{}.png".format(data_name, attr_name), dpi=300, bbox_inches='tight')
+        plt.show()
