@@ -51,8 +51,8 @@ if __name__ == '__main__':
         dataset = get_celeba_dataset()    
     else:        
         dataset = ImgDataset(attributes_csv_file="Data/Anno/list_attr_etu.txt",
-                             images_dir="Data/Img_etu/",
-                             transform=transform_img_for_celeba)
+                             img_root_dir="Data/Img_etu",
+                             transform=None)
         
     
     data_loader = DataLoader(dataset, batch_size=1, shuffle=True)
@@ -60,6 +60,8 @@ if __name__ == '__main__':
     # %% GET N RANDOM IMAGES
     
     N = 5
+    if N > len(dataset):
+        N = len(dataset)
     images = []
     attributes = []
     for i, sample in enumerate(data_loader):
