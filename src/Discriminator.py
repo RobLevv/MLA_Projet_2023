@@ -1,6 +1,7 @@
 import torch
 from src.network_architectures import discriminator_layers
 
+
 class Discriminator(torch.nn.Module):
     """
     Discriminator network
@@ -23,6 +24,7 @@ class Discriminator(torch.nn.Module):
             
         return self.discriminator(input)
 
+# %% TESTS
 y_pred = Discriminator()(torch.rand((1, 512, 2, 2)))
 
 assert y_pred.shape == (1, 40), "The inference function does not work properly. Shape issue for y_pred."

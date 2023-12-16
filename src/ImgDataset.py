@@ -2,17 +2,16 @@ import numpy as np
 import os
 import pandas as pd
 import torch
-
-
 from torchvision.io import read_image
-from src.utils.utils import transform_sample_for_celeba
 
 
 def get_celeba_dataset():
     return ImgDataset(attributes_csv_file='data/Anno/list_attr_celeba.txt', img_root_dir='data/Img_processed', transform=None)
 
+
 def get_celeba_dataset_lite():
     return ImgDataset(attributes_csv_file='data/Anno/list_attr_celeba_lite.txt', img_root_dir='data/Img_processed_lite', transform=None)
+
 
 class ImgDataset(torch.utils.data.Dataset):
     """General Image dataset."""
@@ -56,6 +55,7 @@ class ImgDataset(torch.utils.data.Dataset):
             sample = self.transform(sample)
 
         return sample
+
 
 
 if __name__ == "__main__":

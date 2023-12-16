@@ -1,48 +1,22 @@
-import torch
-from AutoEncoder import AutoEncoder
-from Discriminator import Discriminator
-
-def inference(
-    autoencoder:AutoEncoder,
-    discriminator:Discriminator,
-    scaled_image:torch.tensor,
-    attributes:torch.tensor,
-    device:torch.device
-    ) -> torch.tensor:
-    """
-    Inference function for the autoencoder and the discriminator
-    """
-    # send model, images and attributes to the device ( GPU if available )
-    autoencoder.to(device)
-    discriminator.to(device)
-    scaled_image, attributes = scaled_image.to(device), attributes.to(device)    
-
-    # Generate the latent space and the decoded images (outputs from the autoencoder)
-    latent, decoded = autoencoder(scaled_image, attributes)
-
-    # Generate the prediction of the discriminator
-    y_pred = discriminator(latent)
-
-    return decoded, y_pred
-
-decoded, y_pred = inference(
-    autoencoder=AutoEncoder(),
-    discriminator=Discriminator(),
-    scaled_image=torch.rand((1, 3, 256, 256)),
-    attributes=torch.rand((1, 40)),
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-)
-assert decoded.shape == (1, 3, 256, 256), "The inference function does not work properly. Shape issue for decoded"
-assert y_pred.shape == (1, 40), "The inference function does not work properly. Shape issue for y_pred."
+"""
+This script is used to make inferences on images from datasets, then plot the results and save the plot.
+It is designed to be run from the root directory of the project.
+Everything coulb be changed in this file, but it is not recommended.
+"""
 
 if __name__ == '__main__':
-    print("Every assertion test passed")
     
-    from ImgDataset import get_celeba_dataset, ImgDataset
-    from utils import transform_img_for_celeba
-    from torch.utils.data import DataLoader
+    # %% IMPORTS
+    
     import matplotlib.pyplot as plt
     import numpy as np
+    import torch
+    
+    from src.AutoEncoder import AutoEncoder
+    from src.Discriminator import Discriminator
+    from src.ImgDataset import get_celeba_dataset, ImgDataset
+    from src.inference import inference
+    from torch.utils.data import DataLoader
     
     # %% DATA LOADING
     if False:
@@ -86,7 +60,7 @@ if __name__ == '__main__':
     discriminator = Discriminator()
     discriminator.load_state_dict(torch.load(directory + "discriminator_s.pt", map_location=device))
     
-    # %% 
+    # %% ATTRIBUTE TO CHANGE
     val_min = -5
     val_max = 5
     nb_steps = 10
@@ -95,7 +69,7 @@ if __name__ == '__main__':
     n_attr = 21
     attr_name = dataset.attributes_df.columns[n_attr+1]
     
-    # %% INFERENCE
+    # %% INFERENCE AND PLOT
     
     fig, ax = plt.subplots(N, nb_steps + 1, figsize=(1.7*(nb_steps), 4*N))    
     
@@ -128,13 +102,8 @@ if __name__ == '__main__':
             ax[i, j+1].set_title(str(round(new_attributes[0, n_attr].item(), 2)), fontsize=7)
     
     fig.suptitle("Attribute {} : {} from {} to {}".format(n_attr, attr_name, val_min, val_max), fontsize=16)
-    plt.show()
     
     print("End of the inference")
     
     plt.savefig(directory+"attribute_{}.png".format(attr_name), dpi=300, bbox_inches='tight')
-    
-        
-        
-       
-    
+    plt.show()

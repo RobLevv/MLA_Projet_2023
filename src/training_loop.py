@@ -1,16 +1,11 @@
+import time
 import torch
-
-from src.ImgDataset import get_celeba_dataset
-from src.utils.utils import train_validation_test_split, save_plot_images_comparision, save_plot_losses
+import tqdm
 from src.AutoEncoder import AutoEncoder
 from src.Discriminator import Discriminator
 from src.Logger import Logger
 from src.objectives import adversarial_objective, discriminator_objective, reconstruction_objective
-
-import matplotlib.pyplot as plt
-import numpy as np
-import time
-import tqdm
+from src.utils.plots import save_plot_images_comparision
 
 
 def train_loop(
@@ -126,55 +121,3 @@ def train_loop(
                     "The training took : " + str(current_time//3600) + " hours, " + str(current_time%3600//60) + " minutes, " + str(round(current_time%60)) + " seconds\n")
     
     return dir_name
-    
-
-if __name__ == "__main__":
-    # initialize the gpu if available as material acceleration
-    GPU = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    
-    print(f"Using device: {GPU}")
-    
-    # initialize the models
-    ae = AutoEncoder()
-    dis = Discriminator()
-    
-    ae.to(GPU)
-    dis.to(GPU)
-    
-    # load model
-    # ae.load_state_dict(torch.load("Models/autoencoder_allnight.pt"))
-    # dis.load_state_dict(torch.load("Models/discriminator_allnight.pt"))
-    
-    # initialize the dataset and the data loader
-    dataset = get_celeba_dataset()
-    
-    train_set, validation_set, test_set = train_validation_test_split(dataset, train_split = 0.002, test_split = 0.998, val_split = 0., shuffle = True)
-    train_data_loader = torch.utils.data.DataLoader(train_set, batch_size = 15, shuffle = True)
-    
-    # train the models
-    log_dir_name = train_loop(
-        n_epochs = 5, 
-        device = GPU, 
-        autoencoder = ae, 
-        discriminator = dis, 
-        data_loader = train_data_loader,
-        log_directory = "Logs",
-        attributes_columns=dataset.attributes_df.columns[1:]
-        )
-
-    # save the model
-    torch.save(ae.state_dict(), log_dir_name + "/autoencoder.pt")
-    torch.save(dis.state_dict(), log_dir_name + "/discriminator.pt")
-    
-    # plot the losses
-    save_plot_losses(
-        list_files=[
-            log_dir_name + "/Reconstruction_objective.txt",
-            log_dir_name + "/Adversarial_objective.txt",
-            log_dir_name + "/Discriminator_objective.txt"
-            ],
-        file_name=log_dir_name + "/plots/losses.png",
-        xlabel="batch",
-        ylabel="loss",
-        title="Losses for " + log_dir_name.split("/")[-1],
-    )

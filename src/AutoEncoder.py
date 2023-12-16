@@ -1,6 +1,7 @@
 import torch
 from src.network_architectures import encoder_layers, decoder_layers
 
+
 class AutoEncoder(torch.nn.Module):
     """
     Autoencoder network
@@ -45,7 +46,6 @@ class AutoEncoder(torch.nn.Module):
         return latent, decoded
 
 # %% TESTS
-
 latent, decoded = AutoEncoder()(torch.rand((1, 3, 256, 256)), torch.rand((1, 40)))
 
 assert latent.shape == (1, 512, 2, 2), "The inference function does not work properly. Shape issue for latent"
