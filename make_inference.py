@@ -51,14 +51,13 @@ if __name__ == '__main__':
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
-    directory = "Models/"
-    # directory = "Logs/start_2023_12_15_11-17-28_logs/"
+    directory = "Logs/start_2023_12_15_11-17-28_logs/"
     
     autoencoder = AutoEncoder()
-    autoencoder.load_state_dict(torch.load(directory + "autoencoder_s.pt", map_location=device))
+    autoencoder.load_state_dict(torch.load(directory + "autoencoder.pt", map_location=device))
     
     discriminator = Discriminator()
-    discriminator.load_state_dict(torch.load(directory + "discriminator_s.pt", map_location=device))
+    discriminator.load_state_dict(torch.load(directory + "discriminator.pt", map_location=device))
     
     # %% ATTRIBUTE TO CHANGE
     val_min = -5
