@@ -54,26 +54,30 @@ if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
     autoencoder = AutoEncoder()
-    autoencoder.load_state_dict(torch.load("Models/autoencoder_2023_12_14_11-46-38.pt", map_location=device))
+    autoencoder.load_state_dict(torch.load("Models/autoencoder_v.pt", map_location=device))
     
     discriminator = Discriminator()
-    discriminator.load_state_dict(torch.load("Models/discriminator_2023_12_14_11-46-38.pt", map_location=device))
+    discriminator.load_state_dict(torch.load("Models/discriminator_v.pt", map_location=device))
     
-    # %% GET AN IMAGE AND ITS ATTRIBUTES
-    for batch in data_loader:
-        scaled_image, attributes = batch['image'], batch['attributes']
-        break
+    # %% GET N RANDOM IMAGES
     
-    # %% N ATTRIBUTES TO BE CHANGED (between 0 and 1)
     N = 5
+    images = []
+    attributes = []
+    for i, sample in enumerate(data_loader):
+        image, attribute = sample['image'], sample['attributes']
+        if i >= N:
+            break
+        images.append(image)
+        attributes.append(attribute)
+    
+    # %% 
     step = 0.25
     nb_steps = int(1//step) + 1
-    assert N <= 40, "N must be smaller than 40"
-    random_index = torch.randint(0, 40, (N,))
     
-    new_attributes = attributes.clone()
-    
-    changed_attributes_names = dataset.attributes_df.columns[1:][random_index]
+    # change the attribute num n_attr
+    n_attr = 21
+    attr_name = dataset.attributes_df.columns[n_attr]
     
     # %% INFERENCE
     
@@ -81,16 +85,16 @@ if __name__ == '__main__':
     
     for i in range(N):
         
+        scaled_image = images[i].clone()
+        
         ax[i, 0].imshow(scaled_image.squeeze().permute(1, 2, 0).cpu().detach().numpy())
         ax[i, 0].axis('off')
         ax[i, 0].set_title("Original image")
         
         for j in range(nb_steps):
             # change the attributes of the image step by step going from 0 to 1 or from 1 to 0 depending on the value of the attribute
-            if attributes[0, random_index[i]] == 0:
-                new_attributes[0, random_index[i]] = step * j
-            else:
-                new_attributes[0, random_index[i]] = 1 - step * j
+            new_attributes = attributes[i].clone()
+            new_attributes[0, n_attr] = step * j if attributes[i][0, n_attr] == 1 else 1 - step * j
             
             # make inference
             decoded, y_pred = inference(
@@ -105,52 +109,12 @@ if __name__ == '__main__':
             
             ax[i, j+1].imshow(decoded / np.max(decoded))
             ax[i, j+1].axis('off')
-            ax[i, j+1].set_title("{} : {}".format(changed_attributes_names[i], round(new_attributes[0, random_index[i]].item(), 2)))
+            ax[i, j+1].set_title("{} : {}".format(attr_name, round(new_attributes[0, n_attr].item(), 2)), fontsize=7)
     
-    fig.suptitle("Attributes changed step by step", fontsize=16)
+    fig.suptitle("Attribute {} : {} from 0 to 1 on {} images".format(n_attr, attr_name, N), fontsize=16)
     plt.show()
     
     print("End of the inference")
-    
-    
-    # plot image, decoded and decoded with oposite attributes
-    
-    fig, ax = plt.subplots(1, 3, figsize=(10, 3))
-    
-    ax[0].imshow(scaled_image.squeeze().permute(1, 2, 0).cpu().detach().numpy())
-    ax[0].axis('off')
-    ax[0].set_title("Original image")
-    
-    decoded, y_pred = inference(
-        autoencoder=autoencoder,
-        discriminator=discriminator,
-        scaled_image=scaled_image,
-        attributes=attributes,
-        device = device
-        )
-    
-    decoded = decoded.squeeze().permute(1, 2, 0).cpu().detach().numpy()
-    
-    ax[1].imshow(decoded / np.max(decoded))
-    ax[1].axis('off')
-    ax[1].set_title("Decoded image")
-    
-    decoded, y_pred = inference(
-        autoencoder=autoencoder,
-        discriminator=discriminator,
-        scaled_image=scaled_image,
-        attributes=1 - attributes,
-        device = device
-        )
-    
-    decoded = decoded.squeeze().permute(1, 2, 0).cpu().detach().numpy()
-    
-    ax[2].imshow(decoded / np.max(decoded))
-    ax[2].axis('off')
-    ax[2].set_title("Decoded image with oposite attributes")
-    
-    fig.suptitle("Original image, decoded image and decoded image with oposite attributes", fontsize=16)
-    plt.show()
     
         
         
