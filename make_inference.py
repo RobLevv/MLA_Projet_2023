@@ -40,26 +40,22 @@ if __name__ == '__main__':
     
     print("Let's use the inference function to make inference on a random image from the CelebA dataset")
     
-    from ImgDataset import get_celeba_dataset
+    from ImgDataset import get_celeba_dataset, ImgDataset
+    from utils import transform_img_for_celeba
     from torch.utils.data import DataLoader
     import matplotlib.pyplot as plt
     import numpy as np
     
     # %% DATA LOADING
-    dataset = get_celeba_dataset()
+    if False:
+        dataset = get_celeba_dataset()    
+    else:        
+        dataset = ImgDataset(attributes_csv_file="Data/Anno/list_attr_etu.txt",
+                             images_dir="Data/Img_etu/",
+                             transform=transform_img_for_celeba)
+        
+    
     data_loader = DataLoader(dataset, batch_size=1, shuffle=True)
-    
-    # %% LOAD MODELS
-    
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    
-    directory = "Models/"
-    
-    autoencoder = AutoEncoder()
-    autoencoder.load_state_dict(torch.load(directory + "autoencoder_s.pt", map_location=device))
-    
-    discriminator = Discriminator()
-    discriminator.load_state_dict(torch.load(directory + "discriminator_s.pt", map_location=device))
     
     # %% GET N RANDOM IMAGES
     
@@ -72,6 +68,20 @@ if __name__ == '__main__':
             break
         images.append(image)
         attributes.append(attribute)
+        
+    
+    # %% LOAD MODELS
+    
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    
+    directory = "Models/"
+    # directory = "Logs/start_2023_12_15_11-17-28_logs/"
+    
+    autoencoder = AutoEncoder()
+    autoencoder.load_state_dict(torch.load(directory + "autoencoder_s.pt", map_location=device))
+    
+    discriminator = Discriminator()
+    discriminator.load_state_dict(torch.load(directory + "discriminator_s.pt", map_location=device))
     
     # %% 
     val_min = -5
