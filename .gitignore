@@ -1,3 +1,6 @@
+!Logs/start_2023_12_15_11-17-28_logs/*
+!Logs/start_2023_12_16_13-56-39_logs/*
+
 __pycache__/*
 .ipynb_checkpoints/*
 .vscode/*
@@ -7,7 +10,4 @@ data/Img_processed_lite/*
 Logs/*
 src/__pycache__/*
 src/utils/__pycache__/*
-
-!Logs/start_2023_12_15_11-17-28_logs/*
-!Logs/start_2023_12_16_13-56-39_logs/*
 ```
