@@ -5,4 +5,6 @@ data/Img/*
 data/Img_processed/*
 data/Img_processed_lite/*
 Logs/*
+src/__pycache__/*
+src/utils/__pycache__/*
 ```
