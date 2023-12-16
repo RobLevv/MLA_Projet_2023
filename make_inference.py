@@ -53,11 +53,13 @@ if __name__ == '__main__':
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
+    directory = "Models/"
+    
     autoencoder = AutoEncoder()
-    autoencoder.load_state_dict(torch.load("Models/autoencoder_v.pt", map_location=device))
+    autoencoder.load_state_dict(torch.load(directory + "autoencoder_s.pt", map_location=device))
     
     discriminator = Discriminator()
-    discriminator.load_state_dict(torch.load("Models/discriminator_v.pt", map_location=device))
+    discriminator.load_state_dict(torch.load(directory + "discriminator_s.pt", map_location=device))
     
     # %% GET N RANDOM IMAGES
     
@@ -72,8 +74,9 @@ if __name__ == '__main__':
         attributes.append(attribute)
     
     # %% 
-    step = 0.25
-    nb_steps = int(1//step) + 1
+    step = 2
+    val_max = 10
+    nb_steps = int(val_max//step) + 1
     
     # change the attribute num n_attr
     n_attr = 21
@@ -94,7 +97,7 @@ if __name__ == '__main__':
         for j in range(nb_steps):
             # change the attributes of the image step by step going from 0 to 1 or from 1 to 0 depending on the value of the attribute
             new_attributes = attributes[i].clone()
-            new_attributes[0, n_attr] = step * j if attributes[i][0, n_attr] == 1 else 1 - step * j
+            new_attributes[0, n_attr] = step * j
             
             # make inference
             decoded, y_pred = inference(
@@ -115,6 +118,8 @@ if __name__ == '__main__':
     plt.show()
     
     print("End of the inference")
+    
+    plt.savefig(directory+"attribute_{}.png".format(n_attr), dpi=300, bbox_inches='tight')
     
         
         
