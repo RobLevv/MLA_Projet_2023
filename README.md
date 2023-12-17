@@ -36,12 +36,11 @@ We implemented the Fader Networks model described in the paper [Fader Networks: 
     - <u>[network_architectures.py](src/network_architectures.py):</u> Contains the neural architectures of the autoencoder and the discriminator.
     - <u>[objectives.py](src/objectives.py):</u> Contains the functions used to compute the objectives, reconstruction objective, discriminator objective and adversarial objective.
     - <u>[training_loop.py](src/training_loop.py):</u> Contains the function used to train the model.
-- <u>[data_exploration.ipynb](data_exploration.ipynb):</u> Contains the notebook used to explore the celebA dataset.
 - <u>[FaderNetworks_paper.pdf](FaderNetworks_paper.pdf):</u> Contains the paper of the Fader Networks model.
 - <u>[make_inference.py](make_inference.py):</u> Contains the script used to make the inference.
+- <u>[Notebook_Groupe11.ipynb](Notebook_Groupe11.ipynb):</u> Contains the notebook used to train and infer the model. A brief presentation of the project and the results is also available in the notebook. **Note:** Annexes for data exploration, inference on the authors' model and GPU kernel configuration are available in the notebook.
 - <u>[README.md](README.md):</u> Contains the README of the project.
 - <u>[train.py](train.py):</u> Contains the script used to train the model.
-- <u>[Using_GPU_and_Authors_repo.ipynb](Using_GPU_and_Authors_repo.ipynb):</u> Contains the notebook used to test the authors' implementation of the Fader Networks model.
 
 
 # User Guide
