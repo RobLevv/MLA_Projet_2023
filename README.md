@@ -40,6 +40,7 @@ We implemented the Fader Networks model described in the paper [Fader Networks: 
 - <u>[make_inference.py](make_inference.py):</u> Contains the script used to make the inference.
 - <u>[Notebook_Groupe11.ipynb](Notebook_Groupe11.ipynb):</u> Contains the notebook used to train and infer the model. A brief presentation of the project and the results is also available in the notebook. **Note:** Annexes for data exploration, inference on the authors' model and GPU kernel configuration are available in the notebook.
 - <u>[README.md](README.md):</u> Contains the README of the project.
+- <u>[Report_Groupe11.pdf](Report_Groupe11.pdf):</u> Contains the report of the project.
 - <u>[train.py](train.py):</u> Contains the script used to train the model.
 
 
