@@ -15,7 +15,7 @@ We implemented the Fader Networks model described in the paper [Fader Networks: 
 # Repository Structure
 
 - <u>**[data/](data/):**</u> Contains the datasets
-    - <u>[Anno/](data/Anno/) (`annoation`):</u> contains the annotations of the dataset
+    - <u>[Anno/](data/Anno/) (`annotation`):</u> contains the annotations of the dataset
     - <u>[Eval/](data/Eval/) (`evaluation`):</u> contains the evaluation files of the dataset
     - <u>[Img/](data/Img/) (`images`):</u> contains the images of the dataset, here we chose to use the aligned and cropped images
     - <u>[Img_etu/](data/Img_etu/) (`etu images`):</u> contains the images of the custom dataset made by the contributors of the project
