@@ -30,7 +30,8 @@ if __name__ == "__main__":
     ae.to(GPU)
     dis.to(GPU)
     
-    # load model (UNCOMMENT TO LOAD A MODEL, and add a line saying so to the description file in the Logs folder)
+    # load model (UNCOMMENT TO LOAD A MODEL)
+    # It's recommended to add manually a note saying which model is loaded in Logs/start_date_and_hour_log/Description.txt
     # ae.load_state_dict(torch.load("Models/autoencoder_allnight.pt"))
     # dis.load_state_dict(torch.load("Models/discriminator_allnight.pt"))
     
