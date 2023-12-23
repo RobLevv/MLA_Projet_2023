@@ -57,13 +57,13 @@ def build_Img_processed_folder(
     for file in tqdm.tqdm(files, desc="Transforming images", unit="image"):
         img = read_image(origin_folder + '/' + file)
         img = transform_img_for_celeba(img)
-        save_image(img, target_folder + '/' + file)
+        save_image(img, target_folder + '/' + file, value_range=(0, 1))
 
 
 if __name__ == "__main__" :
     
     print("Using build_Img_processed_folder to build the processed version of a target folder")
     
-    build_Img_processed_folder(origin_folder='data/Img_lite',target_folder='data/Img_processed/lite')
+    build_Img_processed_folder(origin_folder='C:/Users/Robin/Documents/GitHub/data_celebA/data/img_align_celeba',target_folder='data/Img_processed')
     
     print("Done")

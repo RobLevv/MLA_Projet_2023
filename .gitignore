@@ -2,7 +2,6 @@ __pycache__/*
 .ipynb_checkpoints/*
 .vscode/*
 data/Img/*
-data/Img_processed/*
 data/Img_processed_lite/*
 Logs/*
 src/__pycache__/*
