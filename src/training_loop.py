@@ -40,6 +40,8 @@ def train_loop(
     writer.add("Description", "Autoencoder : \n" + str(autoencoder) + "\n")
     writer.add("Description", "Discriminator : \n" + str(discriminator) + "\n")
     
+    lambda_dis = 0
+    
     # loop over the epochs
     for epoch in range(n_epochs):
         
@@ -72,7 +74,8 @@ def train_loop(
             y_pred = discriminator(latent)
             
             # Update the Encoder and Decoder weights
-            loss_autoencoder = adversarial_objective(images, decoded, attributes, y_pred, lambda_ae=0.9) # TODO: change lambda
+            lambda_dis += 0.0001/500000
+            loss_autoencoder = adversarial_objective(images, decoded, attributes, y_pred, lambda_dis) # TODO: change lambda
             autoencoder.optimizer.zero_grad() 
             loss_autoencoder.backward()
             autoencoder.optimizer.step()
