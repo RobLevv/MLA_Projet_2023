@@ -32,19 +32,19 @@ if __name__ == "__main__":
     
     # load model (UNCOMMENT TO LOAD A MODEL)
     # It's recommended to add manually a note saying which model is loaded in Logs/start_date_and_hour_log/Description.txt
-    # ae.load_state_dict(torch.load("Models/autoencoder_allnight.pt"))
-    # dis.load_state_dict(torch.load("Models/discriminator_allnight.pt"))
+    # ae.load_state_dict(torch.load("Logs/start_2023_12_16_13-56-39_logs/autoencoder.pt"))
+    # dis.load_state_dict(torch.load("Logs/start_2023_12_16_13-56-39_logs/discriminator.pt"))
     
     # initialize the dataset and the data loader (use get_celeba_dataset_lite() for a smaller dataset)
     dataset = get_celeba_dataset()
     
-    train_set, validation_set, test_set = train_validation_test_split(dataset, train_split = 0.6, test_split = 0.4, val_split = 0., shuffle = False)
+    train_set, validation_set, test_set = train_validation_test_split(dataset, train_split = 0.5, test_split = 0.5, val_split = 0., shuffle = False)
     train_data_loader = torch.utils.data.DataLoader(train_set, batch_size = 15, shuffle = True)
     
     # %% TRAINING
     
     log_dir_name = train_loop(
-        n_epochs = 5, 
+        n_epochs = 10, 
         device = GPU, 
         autoencoder = ae, 
         discriminator = dis, 

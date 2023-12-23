@@ -53,7 +53,7 @@ if __name__ == '__main__':
     
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     
-    directory = "Logs/start_2023_12_16_13-56-39_logs/"
+    directory = "Logs/start_2023_12_17_14-42-44_logs/"
     
     autoencoder = AutoEncoder()
     autoencoder.load_state_dict(torch.load(directory + "autoencoder.pt", map_location=device))

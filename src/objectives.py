@@ -16,7 +16,7 @@ def discriminator_objective(y, y_pred):
     return torch.nn.functional.binary_cross_entropy(y_pred.float(), y.float()).float()
 
 
-def adversarial_objective(x, x_recon, y, y_discriminated, lambda_ae=0.9):
+def adversarial_objective(x, x_recon, y, y_discriminated, lambda_ae=0.0001):
     """
     x: image
     x_recon: reconstructed image
