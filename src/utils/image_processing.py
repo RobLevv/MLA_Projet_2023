@@ -14,7 +14,7 @@ def transform_img_for_celeba(image:torch.tensor, target_size:int=256) -> torch.t
     image = resize(image, (target_size, target_size), antialias=True)
     # since this function is called when building the dataset, we don't need to normalize the images
     # when read_image is called, the images are tensor with values between 0 and 255 even if normalized between 0 and 1 previously
-    return image.float()
+    return image.float()/255.0
 
 # test the function
 assert transform_img_for_celeba(torch.rand((3, 218, 178)), target_size=121).shape == (3, 121, 121), "The transform_img_for_celeba function does not work properly. Shape issue."
@@ -43,6 +43,8 @@ def build_Img_processed_folder(
     from torchvision.io import read_image
     from torchvision.utils import save_image
     import tqdm
+    import numpy as np
+    import matplotlib.pyplot as plt
     
     # create the folder if it does not exist
     if not os.path.exists(target_folder):
@@ -57,13 +59,15 @@ def build_Img_processed_folder(
     for file in tqdm.tqdm(files, desc="Transforming images", unit="image"):
         img = read_image(origin_folder + '/' + file)
         img = transform_img_for_celeba(img)
-        save_image(img, target_folder + '/' + file, value_range=(0, 1))
+        save_image(img, target_folder + '/' + file, normalize=True)
+        
 
 
 if __name__ == "__main__" :
     
     print("Using build_Img_processed_folder to build the processed version of a target folder")
     
+    # build_Img_processed_folder(origin_folder='data/Img_lite',target_folder='data/Img_processed_lite')
     build_Img_processed_folder(origin_folder='C:/Users/Robin/Documents/GitHub/data_celebA/data/img_align_celeba',target_folder='data/Img_processed')
     
     print("Done")
