@@ -65,6 +65,6 @@ if __name__ == "__main__" :
     
     print("Using build_Img_processed_folder to build the processed version of a target folder")
     
-    build_Img_processed_folder(origin_folder='data/Img_lite',target_folder='data/Img_processed/lite')
+    build_Img_processed_folder(origin_folder='data/Img_lite',target_folder='data/Img_processed_lite')
     
     print("Done")

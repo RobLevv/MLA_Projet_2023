@@ -44,7 +44,7 @@ if __name__ == "__main__":
     # %% TRAINING
     
     log_dir_name = train_loop(
-        n_epochs = 2, 
+        n_epochs = 25, 
         device = GPU, 
         autoencoder = ae, 
         discriminator = dis, 

@@ -99,7 +99,7 @@ def train_loop(
             
             
         # Plot and save the images and the decoded images to compare
-        if plot_images:
+        if plot_images and (epoch % 5 == 0):
             
             save_plot_images_comparision(
                 images = images, 
