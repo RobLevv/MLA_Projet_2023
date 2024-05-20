@@ -12,6 +12,7 @@ def transform_img_for_celeba(image:torch.tensor, target_size:int=256) -> torch.t
     # Crop the image to make it square
     image = crop(image, 40, 0, IMG_SIZE[0], IMG_SIZE[0])
     image = resize(image, (target_size, target_size), antialias=True)
+    image = image/255.0
     # since this function is called when building the dataset, we don't need to normalize the images
     # when read_image is called, the images are tensor with values between 0 and 255 even if normalized between 0 and 1 previously
     return image.float()
