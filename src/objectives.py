@@ -1,5 +1,6 @@
 import torch
 
+
 def reconstruction_objective(x, x_recon):
     """
     x: image
@@ -24,4 +25,6 @@ def adversarial_objective(x, x_recon, y, y_discriminated, lambda_ae=0.0001):
     y_discriminated: predicted attributes
     lambda_ae: lambda auto-encoder parameter
     """
-    return reconstruction_objective(x, x_recon) - lambda_ae * discriminator_objective(1 - y, 1 - y_discriminated)
+    return reconstruction_objective(x, x_recon) - lambda_ae * discriminator_objective(
+        1 - y, 1 - y_discriminated
+    )
