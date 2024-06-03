@@ -152,7 +152,14 @@ def train_loop(
             pbar.update(1)
 
             ## Load the data
-            images, attributes = load_data(batch, device)
+            # get the images and the attributes from the batch
+            images, attributes = batch["image"], batch["attributes"]
+
+            # send model, images and attributes to the device ( GPU if available )
+            images, attributes = images.to(device), attributes.to(device)
+
+            # normalize the images between from 0-255 to 0-1 to avoid overflow in the loss function
+            images = images.float() / 255.0
 
             ## Autoencoder step
             loss_autoencoder, latent, decoded = autoencoder_step(
